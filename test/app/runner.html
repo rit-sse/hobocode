@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8">
     <!-- encoding must be set for mocha's special characters to render properly -->
-    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+    <link rel="stylesheet" href="../../node_modules/mocha/mocha.css" />
   </head>
   <body>
     <div id="mocha"></div>
@@ -15,7 +15,7 @@
       mocha.reporter('html');
       expect = chai.expect;
     </script>
-    <script src="./instrumented/test.app.js"></script>
+    <script src="./instrumented/test.js"></script>
     <script>
       if (window.mochaPhantomJS) { mochaPhantomJS.run(); }
       else { mocha.run(); }

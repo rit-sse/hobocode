@@ -64,7 +64,7 @@ function makeTestBuildTarget(name, projectfile) {
       .pipe(gulp.dest(testDest));
   });
   gulp.task(name+"-instrument", function() {
-    return gulp.src(testDest+'/test.*.js')
+    return gulp.src(testDest+'/*.js')
       .pipe(istanbul({coverageVariable: '__coverage__'}))
       .pipe(gulp.dest(testDest+'/instrumented')) //instrumented file must differ from original
   });
