@@ -8,6 +8,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var istanbul = require('gulp-istanbul');
 var istanbulReport = require('gulp-istanbul-report');
+var gls = require('gulp-live-server');
 
 var coverageFile = './coverage/coverage.json';
 
@@ -105,7 +106,19 @@ gulp.task('clean', function(cb) {
 });
 
 gulp.task('watch', function() {
-    gulp.watch('source/**/*.ts', gulp.series('verify'));
+    var server = gls.new('server/main.js');
+    server.start();
+    gulp.watch(['server/**/*.js'], gulp.series('verify', function() {
+        server.start();
+    }));
+    gulp.watch(['app/**/*.js'], gulp.series('verify', function() {
+        server.notify();
+    }));
+});
+
+gulp.task('serve', function() {
+    var server = gls.new('server/main.js');
+    server.start();
 });
 
 gulp.task('default', gulp.series('verify', 'watch'));
