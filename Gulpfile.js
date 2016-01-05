@@ -106,13 +106,13 @@ gulp.task('clean', function(cb) {
 });
 
 gulp.task('watch', function() {
-    var server = gls.new('server/app.js');
+    var server = gls.new('server/app.js', 3000);
     server.start();
     gulp.watch(['server/**/*.ts', 'app/**/*.ts'], gulp.series('verify'));
-    gulp.watch(['server/**/*.js$'], gulp.series(function() {
+    gulp.watch(['server/**/*.js'], gulp.series(function() {
         server.start();
     }));
-    gulp.watch(['app/**/*.js$'], gulp.series(function() {
+    gulp.watch(['app/**/*.js'], gulp.series(function() {
         server.notify();
     }));
 });
