@@ -28,6 +28,8 @@ node_modules
 
 app/**/*.js
 app/**/*.d.ts
+!app/typings/**/*.d.ts
 server/**/*.js
 server/**/*.d.ts
+!server/typings/**/*.d.ts
 test/app/test.js
