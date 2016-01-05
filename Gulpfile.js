@@ -109,10 +109,10 @@ gulp.task('watch', function() {
     var server = gls.new('server/main.js');
     server.start();
     gulp.watch(['server/**/*.ts', 'app/**/*.ts'], gulp.series('verify'));
-    gulp.watch(['server/**/*.js'], gulp.series(function() {
+    gulp.watch(['server/**/*.js$'], gulp.series(function() {
         server.start();
     }));
-    gulp.watch(['app/**/*.js'], gulp.series(function() {
+    gulp.watch(['app/**/*.js$'], gulp.series(function() {
         server.notify();
     }));
 });
