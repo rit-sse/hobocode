@@ -26,10 +26,6 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
-app/**/*.js
-app/**/*.d.ts
-!app/typings/**/*.d.ts
-server/**/*.js
-server/**/*.d.ts
-!server/typings/**/*.d.ts
-test/app/test.js
+app/**/*.js$
+server/**/*.js$
+test/app/test.js$
