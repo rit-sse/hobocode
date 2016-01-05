@@ -18,28 +18,38 @@ function makeBuildTarget(name, projectfile) {
       .pipe(sourcemaps.init())
       .pipe(ts(project))
       .pipe(sourcemaps.write())
-      .pipe(gulp.dest());
+      .pipe(gulp.dest('./server'));
   });
 }
 
 function makeFrontendBuildTarget(name, projectfile) {
     var project = ts.createProject(projectfile, {typescript: typescript});
-    gulp.task(name, function() {
+    gulp.task(name, gulp.series(function() {
         return project.src()
           .pipe(sourcemaps.init())
           .pipe(ts(project))
+          .pipe(sourcemaps.write())
+          .pipe(gulp.dest('./app'));
+    }, function() {
+        return gulp.src("app/**/*.js")
+          .pipe(sourcemaps.init())
           .pipe(webpack({
-               context: __dirname + "/app",
-               entry: "main.js",
+               entry: "./app/main.js",
                output: {
                    filename: "app.js"
                },
-               resolve: {
-                   
-               }
+               node: {
+                 fs: "empty"
+               },
+               module: {
+                loaders: [
+                    { test: /\.json/, loader: "json" },
+                ]
+            }
           }))
-          .pipe(gulp.dest());
-    });
+          .pipe(sourcemaps.write())
+          .pipe(gulp.dest('./app'));
+    }));
 }
 
 var testDest = './test/app';
@@ -64,7 +74,7 @@ makeFrontendBuildTarget('build:app', 'app/tsconfig.json');
 makeBuildTarget('build:server', 'server/tsconfig.json');
 makeTestBuildTarget('build:test:app', 'test/app/tsconfig.json');
 
-gulp.task('build:test', gulp.parallel('build:test:app', 'build:test:server'));
+gulp.task('build:test', gulp.parallel('build:test:app'/*, 'build:test:server'*/));
 
 gulp.task('build', gulp.parallel('build:app', 'build:server', 'build:test'));
 
@@ -91,7 +101,7 @@ gulp.task('test', gulp.series('test-run', 'test-coverage-report'));
 gulp.task('verify', gulp.series('build', 'test'));
 
 gulp.task('clean', function(cb) {
-  del(['coverage','app/**/*.js', 'server/**/*.js']).then(function(){ cb(); });
+  del(['coverage','app/**/*.js', 'server/**/*.js', 'test/app/test.js']).then(function(){ cb(); });
 });
 
 gulp.task('watch', function() {

@@ -4,7 +4,11 @@
   "description": "[![Stories in Ready](https://badge.waffle.io/rit-sse/hobocode.png?label=ready&title=Ready)](https://waffle.io/rit-sse/hobocode)\r # hobocode\r RapDev 2016 Project",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp test",
+    "build": "gulp build",
+    "watch": "gulp watch",
+    "clean": "gulp clean",
+    "gulp": "gulp"
   },
   "repository": {
     "type": "git",
@@ -20,17 +24,21 @@
     "chai": "^3.4.1",
     "del": "^2.2.0",
     "gulp": "gulpjs/gulp#4.0",
+    "gulp-cli": "^1.1.0",
+    "gulp-istanbul": "^0.10.3",
     "gulp-istanbul-report": "0.0.1",
     "gulp-mocha-phantomjs": "^0.10.1",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-typescript": "^2.10.0",
     "gulp-webpack": "^1.5.0",
+    "json-loader": "^0.5.4",
     "mocha": "^2.3.4",
     "path": "^0.12.7",
+    "pixi.js": "^3.0.9",
     "sinon": "^1.17.2",
     "typescript": "^1.7.5"
   },
   "dependencies": {
-    "pixi.js": "^3.0.9"
+    "express": "^4.13.3"
   }
 }
