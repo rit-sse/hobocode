@@ -1,3 +1,5 @@
 import * as express from "express";
 
-express();
+let app = express();
+ 
+export = app;

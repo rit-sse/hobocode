@@ -2,8 +2,7 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es3",
-        "noImplicitAny": false,
-        "outDir": "built",
+        "noImplicitAny": true,
         "rootDir": ".",
         "sourceMap": false
     },

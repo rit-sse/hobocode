@@ -80,7 +80,7 @@ gulp.task('build:test', gulp.parallel('build:test:app'/*, 'build:test:server'*/)
 gulp.task('build', gulp.parallel('build:app', 'build:server', 'build:test'));
 
 gulp.task('test-run', function() {
-  return gulp.src('tools/runner.html')
+  return gulp.src('test/app/runner.html')
   .pipe(mochaPhantomJS({
     reporter: 'spec',
     phantomjs: {
@@ -106,7 +106,7 @@ gulp.task('clean', function(cb) {
 });
 
 gulp.task('watch', function() {
-    var server = gls.new('server/main.js');
+    var server = gls.new('server/app.js');
     server.start();
     gulp.watch(['server/**/*.ts', 'app/**/*.ts'], gulp.series('verify'));
     gulp.watch(['server/**/*.js$'], gulp.series(function() {
@@ -118,7 +118,7 @@ gulp.task('watch', function() {
 });
 
 gulp.task('serve', function() {
-    var server = gls.new('server/main.js');
+    var server = gls.new('server/app.js');
     server.start();
 });
 
