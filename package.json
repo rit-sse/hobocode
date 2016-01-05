@@ -1,0 +1,36 @@
+{
+  "name": "hobocode",
+  "version": "1.0.0",
+  "description": "[![Stories in Ready](https://badge.waffle.io/rit-sse/hobocode.png?label=ready&title=Ready)](https://waffle.io/rit-sse/hobocode)\r # hobocode\r RapDev 2016 Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rit-sse/hobocode.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rit-sse/hobocode/issues"
+  },
+  "homepage": "https://github.com/rit-sse/hobocode#readme",
+  "devDependencies": {
+    "chai": "^3.4.1",
+    "del": "^2.2.0",
+    "gulp": "gulpjs/gulp#4.0",
+    "gulp-istanbul-report": "0.0.1",
+    "gulp-mocha-phantomjs": "^0.10.1",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-typescript": "^2.10.0",
+    "gulp-webpack": "^1.5.0",
+    "mocha": "^2.3.4",
+    "path": "^0.12.7",
+    "sinon": "^1.17.2",
+    "typescript": "^1.7.5"
+  },
+  "dependencies": {
+    "pixi.js": "^3.0.9"
+  }
+}
