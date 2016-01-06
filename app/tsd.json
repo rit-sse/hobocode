@@ -7,9 +7,6 @@
   "installed": {
     "pixi.js/pixi.js.d.ts": {
       "commit": "6a6ad7068a177c0d7a8a20830626cb63277191c5"
-    },
-    "es6-promise/es6-promise.d.ts": {
-      "commit": "f11e49cfb77f99678657ddfe5d43017849675c64"
     }
   }
 }
