@@ -1,28 +1,14 @@
-export type WireMessage = StateMessage | ActionEnvelopeMessage | SetupMessage;
-export type WireMessageArguments = SetupArguments | StateMessageArguments | ActionMessage;
+export type WireMessage = StateMessage | ActionEnvelopeMessage;
 
 export interface WireMessageBase {
     type: string;
     sequence: number;
-    arguments: WireMessageArguments;
-}
-
-export interface SetupArguments {
-    robots: RobotData[];
-    code: string;
-    grideSize: Point;
-}
-
-// @type: "setup"
-export interface SetupMessage extends WireMessageBase {
-    _setup_message_brand: void;
-    arguments: SetupArguments;
 }
 
 // @type: "state"
 export interface StateMessage extends WireMessageBase {
     _state_message_brand: void;
-    arguments: StateMessageArguments;
+    arguments: StateMessageArguments
 }
 
 export interface StateMessageArguments {
@@ -134,7 +120,7 @@ export interface ShieldObservation extends BaseObservation {
 // @type: "action"
 export interface ActionEnvelopeMessage extends WireMessageBase {
     _action_envelope_message_brand: void;
-    arguments: ActionMessage;
+    message: ActionMessage
 }
 
 export type ActionMessage = HoldActionMessage | MoveActionMessage | ShootActionMessage | ShieldActionMessage | ScanActionMessage;
