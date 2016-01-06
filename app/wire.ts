@@ -10,7 +10,7 @@ export interface WireMessageBase {
 export interface SetupArguments {
     robots: RobotData[];
     code: string;
-    grideSize: Point;
+    gridSize: Point;
 }
 
 // @type: "setup"
