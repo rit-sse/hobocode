@@ -30,12 +30,12 @@ function makeFrontendBuildTarget(name, projectfile) {
       .pipe(sourcemaps.init())
       .pipe(ts(project))
       .pipe(sourcemaps.write())
-      .pipe(gulp.dest('./app'));
+      .pipe(gulp.dest('./tmp')); // Write every JS file to tmp/
   }, function() {
-    return gulp.src('app/**/*.js')
+    return gulp.src('./tmp/**/*.js')
       .pipe(sourcemaps.init())
       .pipe(webpack({
-        entry: './app/main.js',
+        entry: './tmp/main.js',
         output: {
           filename: 'app.js'
         },
@@ -49,8 +49,13 @@ function makeFrontendBuildTarget(name, projectfile) {
         }
       }))
       .pipe(sourcemaps.write())
-      .pipe(gulp.dest('./app'));
-  }));
+      .pipe(gulp.dest('./dist')); // webpack everything to dist/app.js
+    }, function(cb) {
+      del('tmp').then(function() { cb(); });
+    }, function() {
+      return gulp.src('./app/index.html')
+        .pipe(gulp.dest('./dist'));
+    }));
 }
 
 var testDest = './test/app';
@@ -102,7 +107,7 @@ gulp.task('test', gulp.series('test-run', 'test-coverage-report'));
 gulp.task('verify', gulp.series('build', 'test'));
 
 gulp.task('clean', function(cb) {
-  del(['coverage','app/**/*.js$', 'server/**/*.js$', 'test/app/test.js']).then(function(){ cb(); });
+  del(['coverage','dist', 'server/**/*.js$', 'test/app/test.js']).then(function(){ cb(); });
 });
 
 gulp.task('watch', function() {
