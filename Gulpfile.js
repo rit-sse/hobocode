@@ -23,24 +23,6 @@ var lintReporter = function(output, file, options) {
 
 var coverageFile = './coverage/coverage.json';
 
-function makeBuildTarget(name, projectfile) {
-  var project = ts.createProject(projectfile, {typescript: typescript});
-  gulp.task(name, function () {
-    return project.src()
-      .pipe(sourcemaps.init())
-      .pipe(ts(project))
-      .pipe(sourcemaps.write())
-      .pipe(gulp.dest('./server'));
-  });
-  gulp.task('lint:'+name, function() {
-    var tsFiles = gulpFilter(['**/*.ts', '!**/*.d.ts']);
-    return project.src()
-      .pipe(tsFiles)
-      .pipe(lint({configuration: lintConfig, tslint: tslint}))
-      .pipe(lint.report(lintReporter, {emitError: false}));
-  });
-}
-
 function makeFrontendBuildTarget(name, projectfile) {
   var project = ts.createProject(projectfile, {typescript: typescript});
   gulp.task(name, gulp.series(function() {
@@ -109,14 +91,13 @@ function makeTestBuildTarget(name, projectfile) {
 }
 
 makeFrontendBuildTarget('build:app', 'app/tsconfig.json');
-makeBuildTarget('build:server', 'server/tsconfig.json');
 makeTestBuildTarget('build:test:app', 'test/app/tsconfig.json');
 
-gulp.task('lint', gulp.parallel('lint:build:app', 'lint:build:server', 'lint:build:test:app'));
+gulp.task('lint', gulp.parallel('lint:build:app', 'lint:build:test:app'));
 
-gulp.task('build:test', gulp.parallel('build:test:app'/*, 'build:test:server'*/));
+gulp.task('build:test', gulp.parallel('build:test:app'));
 
-gulp.task('build', gulp.parallel('build:app', 'build:server', 'build:test'));
+gulp.task('build', gulp.parallel('build:app', 'build:test'));
 
 gulp.task('test-run', function() {
   return gulp.src('test/app/runner.html')
