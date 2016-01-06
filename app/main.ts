@@ -3,7 +3,8 @@ window.onload = init;
 
 function init(){
 
-	var renderer = PIXI.autoDetectRenderer(800, 600,{backgroundColor : 0x1099bb});
+
+	var renderer = new PIXI.autoDetectRenderer(800, 600, {backgroundColor : 0x1099bb, view : document.getElementById("maincanvas")});
 	document.body.appendChild(renderer.view);
 
 	// create the root of the scene graph
