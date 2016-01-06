@@ -24,7 +24,6 @@ var lintReporter = function(output, file, options) {
 var coverageFile = './coverage/coverage.json';
 
 function makeBuildTarget(name, projectfile) {
-  var tsFiles = gulpFilter(['**/*.ts', '!**/*.d.ts']);
   var project = ts.createProject(projectfile, {typescript: typescript});
   gulp.task(name, function () {
     return project.src()
@@ -34,6 +33,7 @@ function makeBuildTarget(name, projectfile) {
       .pipe(gulp.dest('./server'));
   });
   gulp.task('lint:'+name, function() {
+    var tsFiles = gulpFilter(['**/*.ts', '!**/*.d.ts']);
     return project.src()
       .pipe(tsFiles)
       .pipe(lint({configuration: lintConfig, tslint: tslint}))
@@ -42,7 +42,6 @@ function makeBuildTarget(name, projectfile) {
 }
 
 function makeFrontendBuildTarget(name, projectfile) {
-  var tsFiles = gulpFilter(['**/*.ts', '!**/*.d.ts']);
   var project = ts.createProject(projectfile, {typescript: typescript});
   gulp.task(name, gulp.series(function() {
     return project.src()
@@ -76,6 +75,7 @@ function makeFrontendBuildTarget(name, projectfile) {
         .pipe(gulp.dest('./dist'));
     }));
     gulp.task('lint:'+name, function() {
+      var tsFiles = gulpFilter(['**/*.ts', '!**/*.d.ts']);
       return project.src()
         .pipe(tsFiles)
         .pipe(lint({configuration: lintConfig, tslint: tslint}))
@@ -85,7 +85,6 @@ function makeFrontendBuildTarget(name, projectfile) {
 
 var testDest = './test/app';
 function makeTestBuildTarget(name, projectfile) {
-  var tsFiles = gulpFilter(['**/*.ts', '!**/*.d.ts']);
   var project = ts.createProject(projectfile, {typescript: typescript});
   gulp.task(name+'-build', function() {
     return project.src()
@@ -101,6 +100,7 @@ function makeTestBuildTarget(name, projectfile) {
   });
   gulp.task(name, gulp.series(name+'-build', name+'-instrument'));
   gulp.task('lint:'+name, function() {
+    var tsFiles = gulpFilter(['**/*.ts', '!**/*.d.ts']);
     return project.src()
       .pipe(tsFiles)
       .pipe(lint({configuration: lintConfig, tslint: tslint}))
