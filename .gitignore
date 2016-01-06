@@ -31,5 +31,7 @@ app/**/*.js
 server/**/*.js
 test/app/*.js
 test/app/instrumented
+dist
+tmp
 
 .*.sw*
