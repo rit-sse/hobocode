@@ -24,51 +24,51 @@ function makeBuildTarget(name, projectfile) {
 }
 
 function makeFrontendBuildTarget(name, projectfile) {
-    var project = ts.createProject(projectfile, {typescript: typescript});
-    gulp.task(name, gulp.series(function() {
-        return project.src()
-          .pipe(sourcemaps.init())
-          .pipe(ts(project))
-          .pipe(sourcemaps.write())
-          .pipe(gulp.dest('./app'));
-    }, function() {
-        return gulp.src("app/**/*.js")
-          .pipe(sourcemaps.init())
-          .pipe(webpack({
-               entry: "./app/main.js",
-               output: {
-                   filename: "app.js"
-               },
-               node: {
-                 fs: "empty"
-               },
-               module: {
-                loaders: [
-                    { test: /\.json/, loader: "json" },
-                ]
-            }
-          }))
-          .pipe(sourcemaps.write())
-          .pipe(gulp.dest('./app'));
-    }));
+  var project = ts.createProject(projectfile, {typescript: typescript});
+  gulp.task(name, gulp.series(function() {
+    return project.src()
+      .pipe(sourcemaps.init())
+      .pipe(ts(project))
+      .pipe(sourcemaps.write())
+      .pipe(gulp.dest('./app'));
+  }, function() {
+    return gulp.src('app/**/*.js')
+      .pipe(sourcemaps.init())
+      .pipe(webpack({
+        entry: './app/main.js',
+        output: {
+          filename: 'app.js'
+        },
+        node: {
+          fs: 'empty'
+        },
+        module: {
+          loaders: [
+            { test: /\.json/, loader: 'json' },
+          ]
+        }
+      }))
+      .pipe(sourcemaps.write())
+      .pipe(gulp.dest('./app'));
+  }));
 }
 
 var testDest = './test/app';
 function makeTestBuildTarget(name, projectfile) {
   var project = ts.createProject(projectfile, {typescript: typescript});
-  gulp.task(name+"-build", function() {
+  gulp.task(name+'-build', function() {
     return project.src()
       .pipe(sourcemaps.init())
       .pipe(ts(project))
       .pipe(sourcemaps.write())
       .pipe(gulp.dest(testDest));
   });
-  gulp.task(name+"-instrument", function() {
+  gulp.task(name+'-instrument', function() {
     return gulp.src(testDest+'/*.js')
       .pipe(istanbul({coverageVariable: '__coverage__'}))
       .pipe(gulp.dest(testDest+'/instrumented')) //instrumented file must differ from original
   });
-  gulp.task(name, gulp.series(name+"-build", name+"-instrument"));
+  gulp.task(name, gulp.series(name+'-build', name+'-instrument'));
 }
 
 makeFrontendBuildTarget('build:app', 'app/tsconfig.json');
@@ -106,20 +106,20 @@ gulp.task('clean', function(cb) {
 });
 
 gulp.task('watch', function() {
-    var server = gls.new('server/app.js', 3000);
+  var server = gls.new('server/app.js', 3000);
+  server.start();
+  gulp.watch(['server/**/*.ts', 'app/**/*.ts'], gulp.series('verify'));
+  gulp.watch(['server/**/*.js'], gulp.series(function() {
     server.start();
-    gulp.watch(['server/**/*.ts', 'app/**/*.ts'], gulp.series('verify'));
-    gulp.watch(['server/**/*.js'], gulp.series(function() {
-        server.start();
-    }));
-    gulp.watch(['app/**/*.js'], gulp.series(function() {
-        server.notify();
-    }));
+  }));
+  gulp.watch(['app/**/*.js'], gulp.series(function() {
+    server.notify();
+  }));
 });
 
 gulp.task('serve', function() {
-    var server = gls.new('server/app.js');
-    server.start();
+  var server = gls.new('server/app.js');
+  server.start();
 });
 
 gulp.task('default', gulp.series('verify', 'watch'));
