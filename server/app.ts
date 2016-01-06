@@ -1,7 +1,7 @@
-import * as express from "express";
-import * as http from "http";
-import * as path from "path";
-import * as wire from "./wire";
+import * as express from 'express';
+import * as http from 'http';
+import * as path from 'path';
+import * as wire from './wire';
 
 let app = express();
 app.get('/foo', (req, res) => res.send('bar'));
