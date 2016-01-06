@@ -26,9 +26,11 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
+# SQLite Databases
+.sqlite
+
 !typings
 app/**/*.js
-server/**/*.js
 test/app/*.js
 test/app/instrumented
 dist
