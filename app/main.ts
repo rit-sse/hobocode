@@ -1,5 +1,8 @@
+
 import * as PIXI from 'pixi.js';
+import RobotProxy from './robotproxy';
 window.onload = init; 
+
 
 function init(){
 
