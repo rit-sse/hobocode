@@ -133,7 +133,7 @@ gulp.task('test-coverage-report', function() {
 
 gulp.task('test', gulp.series('test-run', 'test-coverage-report'));
 
-gulp.task('verify', gulp.series('build', 'test'));
+gulp.task('verify', gulp.series('build', 'lint', 'test'));
 
 gulp.task('clean', function(cb) {
   del(['coverage','app/**/*.js$', 'server/**/*.js$', 'test/app/test.js']).then(function(){ cb(); });
