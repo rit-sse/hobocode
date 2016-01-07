@@ -65,7 +65,7 @@ function makeFrontendBuildTarget(name, projectfile) {
     });
 }
 
-var testDest = './test/app';
+var testDest = './app/test';
 function makeTestBuildTarget(name, projectfile) {
   var project = ts.createProject(projectfile, {typescript: typescript});
   gulp.task(name+'-build', function() {
