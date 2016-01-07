@@ -15,67 +15,9 @@ var lint = require('gulp-tslint');
 var gutil = require('gulp-util');
 var tslint = require('tslint');
 
-var coverageFile = './coverage/coverage.json';
-
-var testDest = './app/test';
-function makeTestBuildTarget(name, projectfile) {
-  var lintConfig = require('./app/tslint.json');
-  var lintReporter = function(output, file, options) {
-    output.forEach(function(failure) {
-      gutil.log(failure.name+"["+failure.startPosition.line+", "+failure.startPosition.character+"] ("+failure.ruleName+"): "+failure.failure);
-    });
-  };
-
-  var project = ts.createProject(projectfile, {typescript: typescript});
-  gulp.task(name+'-build', function() {
-    return project.src()
-      .pipe(sourcemaps.init())
-      .pipe(ts(project))
-      .pipe(sourcemaps.write())
-      .pipe(gulp.dest(testDest));
-  });
-  gulp.task(name+'-instrument', function() {
-    return gulp.src(testDest+'/*.js')
-      .pipe(istanbul({coverageVariable: '__coverage__'}))
-      .pipe(gulp.dest(testDest+'/instrumented')) //instrumented file must differ from original
-  });
-  gulp.task(name, gulp.series(name+'-build', name+'-instrument'));
-  gulp.task('lint:'+name, function() {
-    var tsFiles = gulpFilter(['**/*.ts', '!**/*.d.ts']);
-    return project.src()
-      .pipe(tsFiles)
-      .pipe(lint({configuration: lintConfig, tslint: tslint}))
-      .pipe(lint.report(lintReporter, {emitError: false}));
-  });
-}
-
-makeTestBuildTarget('build:test:app', 'app/test/tsconfig.json');
-
-gulp.task('lint', gulp.parallel('lint:app', 'lint:build:test:app'));
-
-gulp.task('build:test', gulp.parallel('build:test:app'));
-
-gulp.task('build', gulp.parallel('build:app', 'build:test'));
-
-gulp.task('test-run', function() {
-  return gulp.src('app/test/runner.html')
-  .pipe(mochaPhantomJS({
-    reporter: 'spec',
-    phantomjs: {
-      hooks: 'mocha-phantomjs-istanbul',
-      coverageFile: coverageFile
-    }
-  }));
-});
-
-gulp.task('test-coverage-report', function() {
-  return gulp.src(coverageFile)
-    .pipe(istanbulReport({
-      reporters: ['text-summary', 'html']
-    }));
-});
-
-gulp.task('test', gulp.series('test-run', 'test-coverage-report'));
+gulp.task('lint', gulp.parallel('lint:app'));
+gulp.task('build', gulp.parallel('build:app'));
+gulp.task('test', gulp.parallel('test:app'));
 
 gulp.task('verify', gulp.series('build', 'lint', 'test'));
 
