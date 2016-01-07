@@ -91,7 +91,7 @@ function makeTestBuildTarget(name, projectfile) {
 }
 
 makeFrontendBuildTarget('build:app', 'app/tsconfig.json');
-makeTestBuildTarget('build:test:app', 'test/app/tsconfig.json');
+makeTestBuildTarget('build:test:app', 'app/test/tsconfig.json');
 
 gulp.task('lint', gulp.parallel('lint:build:app', 'lint:build:test:app'));
 
@@ -100,7 +100,7 @@ gulp.task('build:test', gulp.parallel('build:test:app'));
 gulp.task('build', gulp.parallel('build:app', 'build:test'));
 
 gulp.task('test-run', function() {
-  return gulp.src('test/app/runner.html')
+  return gulp.src('app/test/runner.html')
   .pipe(mochaPhantomJS({
     reporter: 'spec',
     phantomjs: {
