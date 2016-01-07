@@ -17,7 +17,7 @@ var tslint = require('tslint');
 
 var coverageFile = './coverage/coverage.json';
 
-var testDest = './test/app';
+var testDest = './app/test';
 function makeTestBuildTarget(name, projectfile) {
   var lintConfig = require('./app/tslint.json');
   var lintReporter = function(output, file, options) {
@@ -49,7 +49,7 @@ function makeTestBuildTarget(name, projectfile) {
   });
 }
 
-makeTestBuildTarget('build:test:app', 'test/app/tsconfig.json');
+makeTestBuildTarget('build:test:app', 'app/test/tsconfig.json');
 
 gulp.task('lint', gulp.parallel('lint:app', 'lint:build:test:app'));
 
@@ -58,7 +58,7 @@ gulp.task('build:test', gulp.parallel('build:test:app'));
 gulp.task('build', gulp.parallel('build:app', 'build:test'));
 
 gulp.task('test-run', function() {
-  return gulp.src('test/app/runner.html')
+  return gulp.src('app/test/runner.html')
   .pipe(mochaPhantomJS({
     reporter: 'spec',
     phantomjs: {

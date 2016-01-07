@@ -32,6 +32,7 @@ node_modules
 !typings
 app/**/*.js
 !app/gulpfile.js
+!app/test/url_es3.js
 test/app/*.js
 test/app/instrumented
 dist
