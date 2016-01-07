@@ -27,7 +27,7 @@ build/Release
 node_modules
 
 # SQLite Databases
-.sqlite
+*.sqlite
 
 !typings
 app/**/*.js
