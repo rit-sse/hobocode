@@ -1,7 +1,7 @@
 var worker = new Worker("robot.js");
-function helloWorld() {
-    console.log(worker);
-    worker.postMessage({"start":"Woo"});
+function init(bot:string) {
+    console.log(bot);
+    worker.postMessage({"msg":"newBot", "bot":bot});
 }
 
 worker.addEventListener('message', function(e) {

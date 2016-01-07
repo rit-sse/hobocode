@@ -90,8 +90,8 @@ export interface ScanResult extends SuccessResult {
 }
 
 export interface ViewData {
-    robots: RobotData;
-    regens: RegenData;
+    robots: RobotData[];
+    regens: RegenData[];
 }
 
 export type RobotId = string;
