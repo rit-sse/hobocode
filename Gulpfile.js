@@ -1,19 +1,8 @@
 require('./app/gulpfile'); // load app's tasks
-var path = require('path');
+
 var del = require('del');
 var gulp = require('gulp'); //Gulp 4.0+
-var webpack = require('gulp-webpack');
-var ts = require('gulp-typescript');
-var typescript = require('typescript');
-var sourcemaps = require('gulp-sourcemaps');
-var mochaPhantomJS = require('gulp-mocha-phantomjs');
-var istanbul = require('gulp-istanbul');
-var istanbulReport = require('gulp-istanbul-report');
 var gls = require('gulp-live-server');
-var gulpFilter = require('gulp-filter');
-var lint = require('gulp-tslint');
-var gutil = require('gulp-util');
-var tslint = require('tslint');
 
 gulp.task('lint', gulp.parallel('lint:app'));
 gulp.task('build', gulp.parallel('build:app'));

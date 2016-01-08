@@ -8,7 +8,6 @@ var sourcemaps = require('gulp-sourcemaps');
 var mochaPhantomJS = require('gulp-mocha-phantomjs');
 var istanbul = require('gulp-istanbul');
 var istanbulReport = require('gulp-istanbul-report');
-var gls = require('gulp-live-server');
 var gulpFilter = require('gulp-filter');
 var lint = require('gulp-tslint');
 var gutil = require('gulp-util');
