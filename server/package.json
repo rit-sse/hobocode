@@ -10,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.13.3",
-    "sequelize": "^3.17.1"
+    "sequelize": "^3.17.1",
+    "urlify": "^0.3.6"
   },
   "devDependencies": {
     "chai": "^3.4.1",

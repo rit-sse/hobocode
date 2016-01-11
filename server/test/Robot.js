@@ -1,4 +1,10 @@
 'use strict'
+let chai = require("chai");                        
+let chaiAsPromised = require("chai-as-promised");  
+let expect = chai.expect;                                                   
+
+chai.use(chaiAsPromised);                          
+chai.should()                                      
 
 let Robot = require('../models').Robot;
 
@@ -12,17 +18,29 @@ let Robot = require('../models').Robot;
  * the success case.
  */
 let assertValidity = function(response) {
-  return response === null ? Promise.resolve() : Promise.reject();
+  //console.log(response);
+  return response === undefined ? Promise.resolve() : Promise.reject();
 };
 
 describe('Robot', function() {
-  describe('#save()', function () {
+  describe('#validate()', function () {
     it('should require a name', function () {
       return Robot.build({}).validate().then(assertValidity).catch(function() {
         // it is expected for `assertValidity` to reject this call as an invalid
         // Robot.
         return Promise.resolve();
       });
+    });
+
+    it('should autogenerate a url_field', function () {
+      let myBot = Robot.build({ name: 'Jane Doe' });
+      expect(myBot.url_name).to.equal('jane_doe');
+    });
+
+    it('should disallow any two robots to use a name that conflates to the same url', function () {
+      return Robot.create({ name: 'Jane Doe' }).then(() => {
+        return Robot.create({ name: 'jane_doe'});
+      }).should.be.rejected;
     });
   });
 });
