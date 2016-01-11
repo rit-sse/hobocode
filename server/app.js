@@ -10,7 +10,7 @@ app.get('/foo', (req, res) => res.send('bar'));
 app.get('/bar', (req, res) => res.send('foo'));
 
 app.use(express.static(path.join(__dirname, '/public')));
-app.use(express.static(path.join(__dirname, '/../dist')));
+app.use(express.static(path.join(__dirname, '/../app/dist')));
 
 app.use((err, req, res, next) => {
   res.write('ERROR');
