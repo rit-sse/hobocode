@@ -48,7 +48,7 @@ gulp.task('build:app', gulp.series(function() {
   }, function(cb) {
     del(_localFile('tmp')).then(function() { cb(); });
   }, function() {
-    return gulp.src(_localFile('app/**.html'))
+    return gulp.src(_localFile('*.html'))
       .pipe(gulp.dest(_localFile('dist')));
   }
 ));
