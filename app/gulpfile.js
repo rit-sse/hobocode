@@ -46,7 +46,7 @@ gulp.task('build:app', gulp.series(function() {
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(_localFile('dist'))); // webpack everything to dist/app.js
   }, function(cb) {
-    del('tmp').then(function() { cb(); });
+    del(_localFile('tmp')).then(function() { cb(); });
   }, function() {
     return gulp.src(_localFile('app/**.html'))
       .pipe(gulp.dest(_localFile('dist')));
