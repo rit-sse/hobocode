@@ -30,9 +30,6 @@ node_modules
 .sqlite
 
 !typings
-app/**/*.js
-test/app/*.js
-test/app/instrumented
 dist
 tmp
 
