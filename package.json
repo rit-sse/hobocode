@@ -34,6 +34,7 @@
     "gulp-live-server": "0.0.29",
     "gulp-mocha-phantomjs": "^0.10.1",
     "gulp-sourcemaps": "^1.6.0",
+    "gulp-spawn-mocha": "^2.2.2",
     "gulp-tslint": "^4.2.2",
     "gulp-typescript": "^2.10.0",
     "gulp-util": "^3.0.7",

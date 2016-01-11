@@ -1,7 +1,9 @@
-var gulp = require('gulp');
 var mocha = require('gulp-spawn-mocha');
+var path = require('path');
 
-gulp.task('test:server', function() {
-  gulp.src('test/**/*-test.js')
-    .pipe(mocha());
-});
+module.exports = function(gulp) {
+  gulp.task('test:server', function() {
+    return gulp.src(path.join(__dirname, 'test', '*.js'))
+      .pipe(mocha());
+  });
+};
