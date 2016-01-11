@@ -14,11 +14,10 @@ let Robot = require('../models').Robot;
  * Promise.  If you are testing that an instance is invalid, you must `catch`
  * the resulting promise and negate it.
  *
- * Sequelize will return either a `null` or a `ValidationError` - `null` being
+ * Sequelize will return either a `undefined` or a `ValidationError` - `null` being
  * the success case.
  */
 let assertValidity = function(response) {
-  //console.log(response);
   return response === undefined ? Promise.resolve() : Promise.reject();
 };
 

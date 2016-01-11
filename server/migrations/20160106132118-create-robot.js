@@ -12,7 +12,8 @@ module.exports = {
         type: Sequelize.TEXT
       },
       url_name: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
+        unique: true
       },
       revision: {
         type: Sequelize.INTEGER
