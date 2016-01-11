@@ -1,17 +1,8 @@
 {
-  "name": "hobocode",
+  "name": "hobocode-app",
   "version": "1.0.0",
-  "description": "[![Stories in Ready](https://badge.waffle.io/rit-sse/hobocode.png?label=ready&title=Ready)](https://waffle.io/rit-sse/hobocode)\r # hobocode\r RapDev 2016 Project",
-  "main": "index.js",
+  "description": "The app for hobocode",
   "scripts": {
-    "test": "gulp verify",
-    "build": "gulp build",
-    "watch": "gulp watch",
-    "clean": "gulp clean",
-    "serve": "gulp serve",
-    "lint": "gulp lint",
-    "gulp": "gulp",
-    "postinstall":"cd server && npm install; cd ../"
   },
   "repository": {
     "type": "git",
@@ -48,7 +39,5 @@
     "typescript": "^1.7.5"
   },
   "dependencies": {
-    "hobocode-app": "./app",
-    "hobocode-server": "./server"
   }
 }
