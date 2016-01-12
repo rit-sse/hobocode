@@ -15,13 +15,13 @@ export interface SetupArguments {
 }
 
 export var Costs = {
-    "moves":[
-        {"move":3},
-        {"hold":1},
-        {"shield":2},
-        {"scan":9},
-        {"shoot":[3,30,69]}
-    ],
+    "moves":{
+        "move":3,
+        "hold":1,
+        "shield":2,
+        "scan":9,
+        "shoot":[3,30,69]
+    },
     "income":9
 }
 
