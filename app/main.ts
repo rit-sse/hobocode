@@ -2,18 +2,22 @@ import * as PIXI from 'pixi.js';
 import RobotProxy from './robotproxy';
 
 window.onload = function() {
-	var renderer = new PIXI.autoDetectRenderer(800, 600, {backgroundColor : 0x1099bb, view : document.getElementById("maincanvas")});
-	document.body.appendChild(renderer.view);
+    const renderer = PIXI.autoDetectRenderer(800, 600, {backgroundColor : 0x1099bb, view : document.getElementById('maincanvas') as HTMLCanvasElement});
+    document.body.appendChild(renderer.view);
 
-	// create the root of the scene graph
-	var stage = new PIXI.Container();
+    // create the root of the scene graph
+    const stage = new PIXI.Container();
 
-	// start animating
-	animate();
-	function animate() {
-	    requestAnimationFrame(animate);
+    const gridTexture = PIXI.Texture.fromImage('square.png');
+    const tiled = new PIXI.extras.TilingSprite(gridTexture, 800, 600);
+    stage.addChild(tiled);
 
-	    // render the container
-	    renderer.render(stage);
-	}
+    // start animating
+    animate();
+    function animate() {
+        requestAnimationFrame(animate);
+
+        // render the container
+        renderer.render(stage);
+    }
 }
