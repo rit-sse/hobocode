@@ -1,5 +1,5 @@
 export type WireMessage = StateMessage | ActionEnvelopeMessage | SetupMessage;
-export type WireMessageArguments = SetupArguments | StateMessageArguments | ActionMessage;
+export type WireMessageArguments = SetupArguments | StateMessageArguments | ActionMessage[];
 
 export interface WireMessageBase {
     type: string;
@@ -27,13 +27,11 @@ export var Costs = {
 
 // @type: "setup"
 export interface SetupMessage extends WireMessageBase {
-    _setup_message_brand: void;
     arguments: SetupArguments;
 }
 
 // @type: "state"
 export interface StateMessage extends WireMessageBase {
-    _state_message_brand: void;
     arguments: StateMessageArguments;
 }
 
@@ -70,7 +68,6 @@ export interface SuccessResult extends ActionResultBase {
 
 // @type: "hold"
 export interface HoldResult extends SuccessResult {
-    _hold_result_brand: void;
 }
 
 export enum ObstacleType {
@@ -80,24 +77,20 @@ export enum ObstacleType {
 
 // @type: "move"
 export interface MoveResult extends SuccessResult {
-    _move_result_brand: void;
     obstacle?: ObstacleType;
 }
 
 // @type: "shoot"
 export interface ShootResult extends SuccessResult {
-    _shoot_result_brand: void;
     robots_hit: RobotId[]
 }
 
 // @type: "shield"
 export interface ShieldResult extends SuccessResult {
-    _shield_result_brand: void;
 }
 
 // @type: "scan"
 export interface ScanResult extends SuccessResult {
-    _scan_result_brand: void;
     robots: RobotState[];
 }
 
@@ -126,27 +119,23 @@ export interface BaseObservation {
 
 // @type: "shot"
 export interface ShotObservation extends BaseObservation {
-    _shot_observation_brand: void;
     location: Point;
 }
 
 // @type: "explosion"
 export interface ExplosionObservation extends BaseObservation {
-    _explosion_observation_brand: void;
     location: Point;
     radius: number;
 }
 
 // @type: "shield"
 export interface ShieldObservation extends BaseObservation {
-    _shield_observation_brand: void;
     location: Point;
 }
 
 // @type: "action"
 export interface ActionEnvelopeMessage extends WireMessageBase {
-    _action_envelope_message_brand: void;
-    arguments: ActionMessage;
+    arguments: ActionMessage[];
 }
 
 export type ActionMessage = HoldActionMessage | MoveActionMessage | ShootActionMessage | ShieldActionMessage | ScanActionMessage;
@@ -179,28 +168,23 @@ export interface ShieldActionArguments {
 
 // @command: "move"
 export interface MoveActionMessage extends ActionMessageBase {
-    _move_action_message_brand: void;
     arguments: MoveActionArguments;
 }
 
 // @command: "hold"
 export interface HoldActionMessage extends ActionMessageBase {
-    _hold_action_message_brand: void;
 }
 
 // @command: "shoot"
 export interface ShootActionMessage extends ActionMessageBase {
-    _shoot_action_message_brand: void;
     arguments: ShootActionArguments;
 }
 
 // @command: "shield"
 export interface ShieldActionMessage extends ActionMessageBase {
-    _shield_action_message_brand: void;
     arguments: ShieldActionArguments;
 }
 
 // @command: "scan"
 export interface ScanActionMessage extends ActionMessageBase {
-    _scan_action_message_brand: void;
 }

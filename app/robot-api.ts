@@ -3,6 +3,7 @@
 import * as wire from "./wire"
 
 class Robot {
+    
     private gridSize : wire.Point;
     private robots : wire.RobotData[];
     
@@ -21,6 +22,12 @@ class Robot {
     
     private actionResults : wire.ActionResult[];
     
+    private moves : wire.ActionMessage[];
+    
+    private sequence : number;
+    
+    private bot : () => void;
+    
     constructor(private worker : WorkerGlobalScope) {
         this.worker.onmessage = (event) => this.onMessage(event.data);    
     } 
@@ -29,6 +36,7 @@ class Robot {
             if(message.type === "setup") {
                this.setup(message.arguments as wire.SetupMessage)
             } else if (message.type === "state") {
+               this.sequence = message.sequence;
                this.newTick(message.arguments as wire.StateMessageArguments)
             }
     }
@@ -36,7 +44,7 @@ class Robot {
     setup(setupArgs : wire.SetupArguments) {
         this.gridSize = setupArgs.gridSize;
         this.robots = setupArgs.robots;
-        eval(setupArgs.code);
+        this.bot = eval(`function() { ${setupArgs.code} } `).bind(this);
     }
     
     newTick(state : wire.StateMessageArguments) {
@@ -46,6 +54,7 @@ class Robot {
         this.location = currentState.location;
         
         this.tickInfo = state.tick_info;
+       
         this.inView = this.tickInfo[this.tickInfo.length - 1].in_view;
         this.wereInView = this.tickInfo.reduce(function(list, viewData) {
             return list.concat(viewData.in_view);
@@ -73,8 +82,50 @@ class Robot {
             return list.concat(data.action_result);
         },[]);
         
+        this.bot();
     }
     
+    move(direction : string ) {
+        var move = {command: "move", arguments:{direction: wire.CardinalDirection[direction] as wire.CardinalDirection }} as wire.MoveActionMessage;
+        this.moves.push(move);
+        
+        return wire.Costs.moves.move;
+    }
+    
+    shield() {
+        var shield = {command: "shield"} as wire.ShieldActionMessage;
+        this.moves.push(shield);
+        
+        return wire.Costs.moves.shield;
+    }
+    
+    hold() {
+        var hold = {command: "hold"} as wire.HoldActionMessage;
+        this.moves.push(hold);
+    }
+    
+    shoot(radius : number, location: wire.Point) {
+        var shoot = {command: "shoot" ,arguments : {location, radius}} as wire.ShootActionMessage;
+        this.moves.push(shoot);
+        
+        return wire.Costs.moves.shoot[radius];
+    }
+    
+    scan() {
+        var scan = {command: "scan"} as wire.ScanActionMessage;
+        this.moves.push(scan);
+        
+        return wire.Costs.moves.scan;
+    }
+    
+    finalizeMoves() {
+        var message = {type: "action", sequence: this.sequence, arguments: this.moves} as wire.ActionEnvelopeMessage;
+        
+        this.worker.postMessage(message);
+        
+        //Reset moves
+        this.moves = [];
+    }
     
     getActionResults() { return this.actionResults; }
     
@@ -99,5 +150,5 @@ class Robot {
     getLocation() { return this.location; }
     
     getGridSize() { return this.gridSize; }
+    
 }
-
