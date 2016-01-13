@@ -1,5 +1,7 @@
 import * as PIXI from 'pixi.js';
 import RobotProxy from './robotproxy';
+import {GameState} from './gamestate';
+import * as wire from './wire';
 
 window.onload = function() {
     const renderer = PIXI.autoDetectRenderer(800, 600, {backgroundColor : 0x1099bb, view : document.getElementById('maincanvas') as HTMLCanvasElement});
@@ -20,4 +22,7 @@ window.onload = function() {
         // render the container
         renderer.render(stage);
     }
-}
+
+    const testbot: wire.RobotData = {location: {x: 4, y: 4}, name: 'test'};
+    new GameState(8, 8, [new RobotProxy([testbot], '', {x: 8, y: 8})]);
+};

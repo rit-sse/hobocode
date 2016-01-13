@@ -18,7 +18,7 @@ export class RobotProxy {
         }
     }
 
-    private send(type: 'state',  data: wire.StateMessageArguments): Promise<wire.ActionMessage>;
+    private send(type: 'state',  data: wire.StateMessageArguments): Promise<wire.ActionMessage[]>;
     private send(type: 'setup',  data: wire.SetupArguments): Promise<wire.WireMessageArguments>;
     private send(type: string, data: {}): void; // This bogus overload is here to fool TS - overloads are hard
     private send(type: string, data: wire.WireMessageArguments): Promise<wire.WireMessageArguments> {
@@ -34,7 +34,7 @@ export class RobotProxy {
         return prom;
     }
 
-    public getTurn(state: wire.StateMessageArguments): Promise<wire.ActionMessage> {
+    public getTurn(state: wire.StateMessageArguments): Promise<wire.ActionMessage[]> {
         return this.send('state', state);
     }
 
