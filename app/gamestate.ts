@@ -13,15 +13,19 @@ export class GameState {
 			shields:[]
 		};
 
-		this.grid = {}
+		let this.grid = {}
 		let placeX: number, placeY: number;
+        let placeLocation = "";
         let counter = 0;
+        // TODO change to map
 		for (const robotProxy of robotProxies) {
 			// find a location where we can put our robot
 			do {
 				placeX = Math.random()*width;
 				placeY = Math.random()*height;
-			} while (this.grid[placeX+","+placeY] === undefined)
+                placeLocation = placeX+","+placeY;
+			} while (this.grid[placeLocation] === undefined)
+            this.grid[placeLocation] = true;
 
 			// create our robot with that location
             let robotId = (counter++).toString();
@@ -32,6 +36,12 @@ export class GameState {
             this.entities.push( new RobotGameObject(robotId, robotProxy,
                 wire.Health, wire.Costs.income, robotLocation) );
 		}
+
+        Promise.all(
+            this.entities.robots.map( robot => robot.getTurn(undefined) )
+        ).then( (listOfActionMessages: wire.ActionMessage[][]) => {
+            
+        });
 
 	}
 }
