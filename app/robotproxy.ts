@@ -33,6 +33,14 @@ export class RobotProxy {
         this.resolvers[this.seq] = {resolve, reject};
         return prom;
     }
+
+    public getTurn(state: wire.StateMessageArguments): Promise<wire.ActionMessage> {
+        return this.send('state', state);
+    }
+
+    public destroy(): void {
+        this.worker.terminate();
+    }
 }
 
 export default RobotProxy;

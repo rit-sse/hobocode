@@ -22,7 +22,7 @@ export var Costs = {
         "scan":9,
         "shoot":[3,30,69]
     },
-    "income":9
+    "income":9,
 }
 
 // @type: "setup"
