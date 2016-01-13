@@ -4,10 +4,11 @@
         "target": "es3",
         "noImplicitAny": true,
         "rootDir": ".",
-        "sourceMap": false
+        "sourceMap": false,
+        "suppressImplicitAnyIndexErrors": true
     },
-    "exclude": [
-        "node_modules",
-        "robot_api"
+    "files": [
+        "main.ts",
+        "../app/wire.ts"
     ]
 }
