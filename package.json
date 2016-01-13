@@ -10,7 +10,8 @@
     "clean": "gulp clean",
     "serve": "gulp serve",
     "lint": "gulp lint",
-    "gulp": "gulp"
+    "gulp": "gulp",
+    "postinstall":"cd server && npm install; cd ../"
   },
   "repository": {
     "type": "git",

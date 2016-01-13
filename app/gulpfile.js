@@ -18,7 +18,40 @@ var _localFile = function(file) {
   return path.join(__dirname, file);
 }
 
-gulp.task('build:app', gulp.series(function() {
+
+gulp.task('build:robot-api', gulp.series(function() {
+  var project = ts.createProject(_localFile('robot-api/tsconfig.json'), {typescript: typescript});
+
+  return project.src()
+    .pipe(sourcemaps.init())
+    .pipe(ts(project))
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest(_localFile('tmp'))); // Write every JS file to tmp/
+}, function() {
+  return gulp.src(_localFile('tmp/**/*.js'))
+    .pipe(sourcemaps.init())
+    .pipe(webpack({
+      entry: _localFile('tmp/robot-api/main.js'),
+      output: {
+        filename: 'robot-api.js'
+      },
+      node: {
+        fs: 'empty'
+      },
+      module: {
+        loaders: [
+          { test: /\.json/, loader: 'json' },
+        ]
+      }
+    }))
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest(_localFile('dist'))); // webpack everything to dist/app.js
+}, function(cb) {
+  del(_localFile('robot-api-tmp')).then(function() { cb(); });
+}
+));
+
+gulp.task('build:app', gulp.series('build:robot-api', function() {
   var project = ts.createProject(_localFile('tsconfig.json'), {typescript: typescript});
 
   return project.src()
