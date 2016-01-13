@@ -1,9 +1,10 @@
 import * as wire from './wire';
 import RobotProxy from './robotproxy';
-import { RobotGameObject, RegenGameObject, ExplosionGameObject, ShieldGameObject } from './robotgamestate';
+import { RobotGameObject, RegenGameObject, ExplosionGameObject, ShieldGameObject } from './gameobjects';
 
 export class GameState {
-
+    private entities: { robots:RobotGameObject[],regens:RegenGameObject[],explosions:ExplosionGameObject[],shields:ShieldGameObject[]};
+    private grid: {[index: string]: number};
 	constructor(public width: number, public height: number, robotproxies:RobotProxy[]) {
 		this.entities = {
 			robots:[],
@@ -13,13 +14,13 @@ export class GameState {
 		};
 
 		this.grid = {}
-		let placeX, placeY;
-		for (const robot of robots) {
+		let placeX: number, placeY: number;
+		for (const robot of this.entities.robots) {
 			// find a location where we can put our robot
 			do {
 				placeX = Math.random()*width;
 				placeY = Math.random()*height;
-			} while (grid[placeX+","+placeY] === undefined)
+			} while (this.grid[placeX+","+placeY] === undefined)
 
 			// create our robot with that location
 		}
