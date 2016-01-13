@@ -1,6 +1,6 @@
 'use strict'
-let chai = require("chai");                        
-let chaiAsPromised = require("chai-as-promised");  
+let chai = require('chai');                        
+let chaiAsPromised = require('chai-as-promised');  
 let expect = chai.expect;                                                   
 
 chai.use(chaiAsPromised);                          
@@ -41,5 +41,19 @@ describe('Robot', function() {
         return Robot.create({ name: 'jane_doe'});
       }).should.be.rejected;
     });
+
+    it('should disallow any two robots to use a name that conflates to the same url', function () {
+      return Robot.create({ name: 'myBot' }).then(() => {
+        return Robot.create({ name: 'mybot'});
+      }).should.be.rejected;
+    });
+
+    it('should disallow any two robots to use a name that conflates to the same url', function () {
+      return Robot.create({ name: 'THIS IS MY ROBOT NAME' }).then(() => {
+        return Robot.create({ name: 'this_is_my_robot_name'});
+      }).should.be.rejected;
+    });
+    
+
   });
 });
