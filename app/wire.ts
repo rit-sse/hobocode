@@ -7,14 +7,7 @@ export interface WireMessageBase {
     arguments: WireMessageArguments;
 }
 
-export interface SetupArguments {
-    robots: RobotData[];
-    code: string;
-    gridSize: Point;
-    costs : typeof Costs;
-}
-
-export var Costs = {
+export const Costs = {
     "moves":{
         "move":3,
         "hold":1,
@@ -24,6 +17,15 @@ export var Costs = {
     },
     "income":9,
 }
+
+export interface SetupArguments {
+    robots: RobotData[];
+    code: string;
+    gridSize: Point;
+    costs : typeof Costs;
+}
+
+export const Health = 20;
 
 // @type: "setup"
 export interface SetupMessage extends WireMessageBase {
