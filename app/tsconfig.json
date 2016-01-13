@@ -6,8 +6,8 @@
         "rootDir": ".",
         "sourceMap": false
     },
-    "exclude": [
-        "node_modules",
-        "robot_api"
+    "files": [
+        "typings/tsd.d.ts",
+        "main.ts"
     ]
 }

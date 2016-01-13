@@ -3,12 +3,12 @@
         "module": "commonjs",
         "target": "es3",
         "noImplicitAny": true,
-        "rootDir": ".",
+        "rootDir": "../",
         "sourceMap": false,
         "suppressImplicitAnyIndexErrors": true
     },
     "files": [
-        "main.ts",
-        "../app/wire.ts"
+        "../wire.ts",
+        "main.ts"
     ]
 }
