@@ -7,22 +7,22 @@ export interface WireMessageBase {
     arguments: WireMessageArguments;
 }
 
+export const Costs = {
+    moves: {
+        move: 3,
+        hold: 1,
+        shield: 2,
+        scan: 9,
+        shoot: [3, 30, 69]
+    },
+    income: 9
+};
+
 export interface SetupArguments {
     robots: RobotData[];
     code: string;
     gridSize: Point;
-    costs : typeof Costs;
-}
-
-export var Costs = {
-    "moves":{
-        "move":3,
-        "hold":1,
-        "shield":2,
-        "scan":9,
-        "shoot":[3,30,69]
-    },
-    "income":9,
+    costs: typeof Costs;
 }
 
 // @type: "setup"

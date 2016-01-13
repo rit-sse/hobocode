@@ -27,6 +27,8 @@ class Robot {
 
     private bot: () => void;
 
+    private costs: typeof wire.Costs;
+
     constructor(private worker: WorkerGlobalScope) {
         this.worker.onmessage = (event) => this.onMessage(event.data);
     }
@@ -43,6 +45,7 @@ class Robot {
     setup(setupArgs: wire.SetupArguments) {
         this.gridSize = setupArgs.gridSize;
         this.robots = setupArgs.robots;
+        this.costs = setupArgs.costs;
         this.bot = eval(`function() { ${setupArgs.code} } `).bind(this);
     }
 
@@ -88,33 +91,35 @@ class Robot {
         const move = {command: 'move', arguments: {direction: wire.CardinalDirection[direction] as wire.CardinalDirection }} as wire.MoveActionMessage;
         this.moves.push(move);
 
-        return wire.Costs.moves.move;
+        return this.costs.moves.move;
     }
 
     shield() {
         const shield = {command: 'shield'} as wire.ShieldActionMessage;
         this.moves.push(shield);
 
-        return wire.Costs.moves.shield;
+        return this.costs.moves.shield;
     }
 
     hold() {
         const hold = {command: 'hold'} as wire.HoldActionMessage;
         this.moves.push(hold);
+
+        return this.costs.moves.hold;
     }
 
     shoot(radius: number, location: wire.Point) {
         const shoot = {command: 'shoot', arguments: {location, radius}} as wire.ShootActionMessage;
         this.moves.push(shoot);
 
-        return wire.Costs.moves.shoot[radius];
+        return this.costs.moves.shoot[radius] ? this.costs.moves.shoot[radius] : Infinity;
     }
 
     scan() {
         const scan = {command: 'scan'} as wire.ScanActionMessage;
         this.moves.push(scan);
 
-        return wire.Costs.moves.scan;
+        return this.costs.moves.scan;
     }
 
     finalizeMoves() {
