@@ -8,12 +8,8 @@ module.exports = {
 
       Example:
       return queryInterface.createTable('users', { id: Sequelize.INTEGER });
-      
-      Race conditions may exist between migration steps. Promise.then()
-      mitigates these issues.
-       
     */
-      return queryInterface.removeColumn('Robots', 'revision');
+    return queryInterface.addColumn('Robots', 'code', Sequelize.STRING);
   },
 
   down: function (queryInterface, Sequelize) {
@@ -24,6 +20,6 @@ module.exports = {
       Example:
       return queryInterface.dropTable('users');
     */
-      return queryInterface.addColumn('Robots', 'revision', {type: Sequelize.INTEGER});
+    return queryInterface.removeColumn('Robots', code);
   }
 };
