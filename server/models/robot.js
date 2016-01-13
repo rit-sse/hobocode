@@ -22,7 +22,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       unique: true
     },
-    code: DataTypes.TEXT
+    code: {type: DataTypes.TEXT}
   }, {
     classMethods: {
       associate: function(models) {
