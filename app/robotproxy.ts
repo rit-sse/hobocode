@@ -8,7 +8,7 @@ export class RobotProxy {
     constructor(robots: wire.RobotData[], code: string, grideSize: wire.Point) {
         this.worker = new Worker('./robot-api.js');
         this.worker.onmessage = (event) => this.onmessage(event.data);
-        this.send('setup', {robots, code, grideSize}); // We dont wait for a response to setup
+        this.send('setup', {robots, code, grideSize, costs: wire.Costs}); // We dont wait for a response to setup
     }
 
     private onmessage(data: wire.WireMessage) {

@@ -27,6 +27,8 @@ class Robot {
 
     private bot: () => void;
 
+    private costs: typeof wire.Costs;
+
     constructor(private worker: WorkerGlobalScope) {
         this.worker.onmessage = (event) => this.onMessage(event.data);
     }
@@ -43,6 +45,7 @@ class Robot {
     setup(setupArgs: wire.SetupArguments) {
         this.gridSize = setupArgs.gridSize;
         this.robots = setupArgs.robots;
+        this.costs = setupArgs.costs;
         this.bot = eval(`function() { ${setupArgs.code} } `).bind(this);
     }
 
@@ -88,42 +91,87 @@ class Robot {
         const move = {command: 'move', arguments: {direction: wire.CardinalDirection[direction] as wire.CardinalDirection }} as wire.MoveActionMessage;
         this.moves.push(move);
 
-        return wire.Costs.moves.move;
+        return this.costs.moves.move;
+    }
+
+    move_north() {
+        return this.move('North');
+    }
+
+    move_south() {
+        return this.move('South');
+    }
+
+    move_east() {
+        return this.move('East');
+    }
+
+    move_west() {
+        return this.move('West');
     }
 
     shield() {
         const shield = {command: 'shield'} as wire.ShieldActionMessage;
         this.moves.push(shield);
 
-        return wire.Costs.moves.shield;
+        return this.costs.moves.shield;
     }
 
     hold() {
         const hold = {command: 'hold'} as wire.HoldActionMessage;
         this.moves.push(hold);
+
+        return this.costs.moves.hold;
     }
 
     shoot(radius: number, location: wire.Point) {
         const shoot = {command: 'shoot', arguments: {location, radius}} as wire.ShootActionMessage;
         this.moves.push(shoot);
 
-        return wire.Costs.moves.shoot[radius];
+        return this.costs.moves.shoot[radius] ? this.costs.moves.shoot[radius] : Infinity;
     }
 
     scan() {
         const scan = {command: 'scan'} as wire.ScanActionMessage;
         this.moves.push(scan);
 
-        return wire.Costs.moves.scan;
+        return this.costs.moves.scan;
     }
 
-    finalizeMoves() {
+    reset_moves() {
+        this.moves = [];
+    }
+
+    total_queued_cost() {
+        return this.moves.reduce((total, move) => {
+            switch (move.command) {
+                case 'move':
+                    return total + this.costs.moves.move;
+                case 'hold':
+                    return total + this.costs.moves.hold;
+                case 'shield':
+                    return total + this.costs.moves.shield;
+                case 'shoot':
+                    return total + this.costs.moves.shoot[(move as wire.ShootActionMessage).arguments.radius];
+                case 'scan':
+                    return total + this.costs.moves.scan;
+            }
+        }, 0);
+    }
+
+    validate_moves() {
+        return this.total_queued_cost() <= this.energy;
+    }
+
+    finalize_moves() {
+        if (!this.validate_moves()) {
+            throw new Error(`More moves scheduled than the robot has energy for! ${this.total_queued_cost()} energy use scheduled, but only ${this.energy} available for use! Use "this.reset_moves()" to reset the move queue.`);
+        }
         const message = {type: 'action', sequence: this.sequence, arguments: this.moves} as wire.ActionEnvelopeMessage;
 
         this.worker.postMessage(message);
 
-        // Reset moves
-        this.moves = [];
+        this.reset_moves();
     }
 
     getActionResults() { return this.actionResults; }

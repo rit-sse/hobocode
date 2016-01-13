@@ -8,21 +8,21 @@ export interface WireMessageBase {
 }
 
 export const Costs = {
-    "moves":{
-        "move":3,
-        "hold":1,
-        "shield":2,
-        "scan":9,
-        "shoot":[3,30,69]
+    moves: {
+        move: 3,
+        hold: 1,
+        shield: 2,
+        scan: 9,
+        shoot: [3, 30, 69]
     },
-    "income":9,
-}
+    income: 9
+};
 
 export interface SetupArguments {
     robots: RobotData[];
     code: string;
     gridSize: Point;
-    costs : typeof Costs;
+    costs: typeof Costs;
 }
 
 export const Health = 20;
@@ -39,7 +39,7 @@ export interface StateMessage extends WireMessageBase {
 
 export interface StateMessageArguments {
     robot_state: RobotState;
-    tick_info: TickData[]
+    tick_info: TickData[];
 }
 
 export interface RobotState extends RobotData {
@@ -84,7 +84,7 @@ export interface MoveResult extends SuccessResult {
 
 // @type: "shoot"
 export interface ShootResult extends SuccessResult {
-    robots_hit: RobotId[]
+    robots_hit: RobotId[];
 }
 
 // @type: "shield"
