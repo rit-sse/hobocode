@@ -94,6 +94,22 @@ class Robot {
         return this.costs.moves.move;
     }
 
+    move_north() {
+        return this.move('North');
+    }
+
+    move_south() {
+        return this.move('South');
+    }
+
+    move_east() {
+        return this.move('East');
+    }
+
+    move_west() {
+        return this.move('West');
+    }
+
     shield() {
         const shield = {command: 'shield'} as wire.ShieldActionMessage;
         this.moves.push(shield);
@@ -122,13 +138,40 @@ class Robot {
         return this.costs.moves.scan;
     }
 
-    finalizeMoves() {
+    reset_moves() {
+        this.moves = [];
+    }
+
+    total_queued_cost() {
+        return this.moves.reduce((total, move) => {
+            switch (move.command) {
+                case 'move':
+                    return total + this.costs.moves.move;
+                case 'hold':
+                    return total + this.costs.moves.hold;
+                case 'shield':
+                    return total + this.costs.moves.shield;
+                case 'shoot':
+                    return total + this.costs.moves.shoot[(move as wire.ShootActionMessage).arguments.radius];
+                case 'scan':
+                    return total + this.costs.moves.scan;
+            }
+        }, 0);
+    }
+
+    validate_moves() {
+        return this.total_queued_cost() <= this.energy;
+    }
+
+    finalize_moves() {
+        if (!this.validate_moves()) {
+            throw new Error(`More moves scheduled than the robot has energy for! ${this.total_queued_cost()} energy use scheduled, but only ${this.energy} available for use! Use "this.reset_moves()" to reset the move queue.`);
+        }
         const message = {type: 'action', sequence: this.sequence, arguments: this.moves} as wire.ActionEnvelopeMessage;
 
         this.worker.postMessage(message);
 
-        // Reset moves
-        this.moves = [];
+        this.reset_moves();
     }
 
     getActionResults() { return this.actionResults; }
