@@ -31,29 +31,17 @@ describe('Robot', function() {
       });
     });
 
-    it('should autogenerate a url_field', function () {
-      let myBot = Robot.build({ name: 'Jane Doe' });
-      expect(myBot.url_name).to.equal('jane_doe');
-    });
+    describe('url_name', function () {
+      it('should autogenerate a url_field', function () {
+        let myBot = Robot.build({ name: 'Jane Doe' });
+        expect(myBot.url_name).to.equal('jane_doe');
+      });
 
-    it('should disallow any two robots to use a name that conflates to the same url', function () {
-      return Robot.create({ name: 'Jane Doe' }).then(() => {
-        return Robot.create({ name: 'jane_doe'});
-      }).should.be.rejected;
+      it('should disallow any two robots to use a name that conflates to the same url', function () {
+        return Robot.create({ name: 'Jane Doe' }).then(() => {
+          return Robot.create({ name: 'jane_doe'});
+        }).should.be.rejected;
+      });
     });
-
-    it('should disallow any two robots to use a name that conflates to the same url', function () {
-      return Robot.create({ name: 'myBot' }).then(() => {
-        return Robot.create({ name: 'mybot'});
-      }).should.be.rejected;
-    });
-
-    it('should disallow any two robots to use a name that conflates to the same url', function () {
-      return Robot.create({ name: 'THIS IS MY ROBOT NAME' }).then(() => {
-        return Robot.create({ name: 'this_is_my_robot_name'});
-      }).should.be.rejected;
-    });
-    
-
   });
 });
