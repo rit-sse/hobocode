@@ -1,5 +1,6 @@
 import * as wire from './wire';
 import RobotProxy from './robotproxy';
+import {GameState} from './gamestate';
 
 export class GameObject {
     constructor(public location: wire.Point) {}
@@ -14,6 +15,7 @@ export class GameObject {
 
 export class RobotGameObject extends GameObject implements wire.RobotState {
     public proxy: RobotProxy;
+    public shielded: boolean = false;
     constructor(public name: wire.RobotId, private code: string,
               public health: number, public energy: number,
               public location: wire.Point) {
@@ -22,6 +24,29 @@ export class RobotGameObject extends GameObject implements wire.RobotState {
 
     setupProxy(robots: wire.RobotData[], gridSize: wire.Point) {
         this.proxy = new RobotProxy(robots, this.code, gridSize);
+    }
+
+    private observations: wire.Observation[] = [];
+    addObservation(observation: wire.Observation) {
+        this.observations.push(observation);
+    }
+
+    private result: wire.ActionResult;
+    setResult(result: wire.ActionResult) {
+        this.result = result;
+    }
+    generateTickDataAndReset(board: GameState): wire.TickData {
+        const ret: wire.TickData = {
+            in_view: {
+                robots: board.entities.robots.filter(bot => this.inRange(bot, wire.ViewDistance)).map(bot => ({location: bot.location, name: bot.name})),
+                regens: board.entities.regens.filter(reg => this.inRange(reg, wire.ViewDistance)).map(reg => ({location: reg.location, value: reg.value})),
+            },
+            observations: this.observations,
+            action_result: this.result,
+        };
+        this.observations = [];
+        this.result = undefined;
+        return ret;
     }
 }
 

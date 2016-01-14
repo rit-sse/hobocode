@@ -7,7 +7,7 @@ function randomInteger(max: number, min = 0) {
 }
 
 export class GameState {
-    private entities: {
+    public entities: {
         robots: RobotGameObject[],
         regens: RegenGameObject[],
     };
@@ -118,13 +118,11 @@ export class GameState {
         /**
          * A turn is resolved in as many steps as there are actions for each robot.
          * Each step is resolved as a series of phases (one for each action).
-         * -  Setup (spawn more regens)
          * 1. Hold
          * 2. Shield
          * 3. Move
          * 4. Shoot
          * 5. Scan
-         * -  Cleanup (remove killed bots, shields, etc)
          * Actions in the same phase are resolved simultaneously, with conflicts during move resolved as follows:
          * - If two robots attempt to move into the same space, neither robot moves.
          * If any action is "invalid" - for example movement off the board, shielding for more than allowed, shooting for more than allowed 
@@ -160,7 +158,7 @@ export class GameState {
                    }
                    switch (action.command) {
                        case 'hold':
-                         exhausted[bot.name] = this.hold(bot);
+                         exhausted[bot.name] = this.hold(bot, true);
                          break;
                        case 'shield':
                          exhausted[bot.name] = this.shield(bot);
@@ -185,7 +183,10 @@ export class GameState {
          });
     }
 
-    hold(robot: RobotGameObject) {
+    hold(robot: RobotGameObject, setResult?: boolean) {
+        if (setResult) {
+            robot.setResult({type: 'hold', success: true}); // Holds never fail, per sey
+        }
         robot.energy -= wire.Costs.moves.hold;
         if (robot.energy < 0) {
             robot.energy = 0;
@@ -195,13 +196,20 @@ export class GameState {
     }
 
     shield(robot: RobotGameObject) {
-        // TODO: Mark shielded bot
         robot.energy -= wire.Costs.moves.shield;
         if (robot.energy < 0) {
             robot.energy += wire.Costs.moves.shield;
+            robot.setResult({type: 'shield', success: false});
             this.hold(robot);
             return true;
         }
+        robot.shielded = true;
+        robot.setResult({type: 'shield', success: true});
+        this.entities.robots.forEach(bot => {
+            if (bot.inRange(robot, wire.ViewDistance)) {
+                bot.addObservation({type: 'shield', location: robot.location});
+            }
+        })
         return false;
     }
 
@@ -242,16 +250,38 @@ export class GameState {
             return true;
         }
         robot.energy -= cost;
+        const result: wire.ShootResult = {robots_hit: [], success: true, type: 'shoot'};
+        const observation: wire.ShotObservation = {location: robot.location, type: 'shot'};
+        const explosionObservation: wire.ExplosionObservation = {location, radius, type: 'explosion'};
         this.entities.robots.forEach(bot => {
             if (bot.inRange({location}, radius + 1)) {
-                bot.health -= 1;
+                result.robots_hit.push(bot.name);
+                if (bot.shielded) {
+                    // Should shields only block one shot?
+                    bot.shielded = false;
+                } else {
+                    bot.health -= 1;
+                }
+            }
+            if (bot.inRange({location: observation.location}, wire.ViewDistance)) {
+                bot.addObservation(observation);
+            }
+            if (bot.inRange({location: explosionObservation.location}, wire.ViewDistance)) {
+                bot.addObservation(explosionObservation);
             }
         });
+        robot.setResult(result);
         return false;
     }
 
     scan(robot: RobotGameObject): boolean {
-        // TODO
+        if (robot.energy < wire.Costs.moves.scan) {
+            robot.setResult({type: 'scan', success: false});
+            this.hold(robot);
+            return true;
+        }
+        robot.energy -= wire.Costs.moves.scan;
+        robot.setResult({type: 'scan', success: true, robots: this.entities.robots.filter(bot => robot.inRange(bot, wire.ViewDistance)).map(bot => ({location: bot.location, name: bot.name, energy: bot.energy, health: bot.health}))});
         return false;
     }
 }
