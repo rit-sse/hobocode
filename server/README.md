@@ -7,7 +7,32 @@
 
 ###`GET /api/v1/robots/<robot url_name>`
 
-get a robot
+Get an existing robot
+
+####Response
+
+#####200
+
+```js
+{
+	"id": 1,
+  "name": "My Bot",
+  "url_name": "my_bot",
+  "code": "this is my code",
+  "createdAt": "2016-01-14T19:15:00.685Z",
+  "updatedAt": "2016-01-14T19:15:00.685Z"
+}
+```
+
+#####404
+
+Failure: no bot found
+
+```js
+{
+	"error": "No robot found"
+}
+```
 
 ###`POST /api/v1/robots`
 
@@ -50,5 +75,6 @@ Failure: Name not unique enough, conflicts with existing robot
 }
 ```
 
-alter a robot:
-`PUT /api/v1/<robot url_name>/<robot code text>`
+###`PUT /api/v1/robots`
+
+Alter an existing robot
