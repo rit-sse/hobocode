@@ -1,4 +1,6 @@
 'use strict';
+
+const bcrypt = require('bcrypt');
 const urlify = require('urlify').create({
   addEToUmlauts:true,
   szToSs:true,
@@ -22,8 +24,31 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.TEXT,
       unique: true
     },
-    code: {type: DataTypes.TEXT}
+    code: {
+      type: DataTypes.TEXT
+    },
+    password: {
+      type: DataTypes.STRING,
+      set: function(val) {
+        let salt = bcrypt.genSaltSync(10);
+        let hash = bcrypt.hashSync(val, salt);
+        this.setDataValue('password', hash);
+        if (val === '') {
+          this.setDataValue('');
+        }
+      }
+    }
   }, {
+    instanceMethods : {
+      toJSON: function() {
+        let values = this.get();
+        delete values.password;
+        return values;
+      },
+      verify: function(val) {
+        return bcrypt.compareSync(val, this.password);
+      }
+    },
     classMethods: {
       associate: function(models) {
         // associations can be defined here
