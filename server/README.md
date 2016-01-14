@@ -5,6 +5,8 @@
 1. `npm install`
 2. `node app.js`
 
+##Endpoints
+
 ###`GET /api/v1/robots/<robot url_name>`
 
 Get an existing robot
@@ -15,7 +17,7 @@ Get an existing robot
 
 ```js
 {
-	"id": 1,
+  "id": 1,
   "name": "My Bot",
   "url_name": "my_bot",
   "code": "this is my code",
@@ -78,3 +80,52 @@ Failure: Name not unique enough, conflicts with existing robot
 ###`PUT /api/v1/robots`
 
 Alter an existing robot
+
+####Body
+
+```js
+{
+    "botname": "My Bot",
+    "code": "this code is better",
+    "password": "optional-password-here"
+}
+```
+
+####Response
+
+#####200
+
+Success: Robot alteration stored
+
+####Body
+
+```js
+{
+  "id": 9,
+  "name": "My Bot",
+  "url_name": "my_bot",
+  "code": "this is better code",
+  "createdAt": "2016-01-14T19:15:00.685Z",
+  "updatedAt": "2016-01-14T19:31:16.371Z"
+}
+```
+
+#####401
+
+Failure: incorrect password
+
+```js
+{
+  "error": "Incorrect password"
+}
+```
+
+#####404
+
+Failure: no robot found
+
+```js
+{
+  "error": "No robot found"
+}
+```
