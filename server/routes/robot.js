@@ -4,43 +4,53 @@ const express = require('express');
 const router = express.Router();
 const Robot = require('../models').Robot;
 
-router.route('/robots/:botname/:code?')
+router.route('/robots/:botname?/')
 
   /* get a robot from the database */
   .get((req, res)=>{
     const botname = req.params.botname;
-    Robot.findAll({ where: { url_name: botname } }).then((robots)=>{
-      console.log(robots);
-      res.json(robots[0]);
+    Robot.findOne({ where: { url_name: botname } }).then((robots)=>{
+      //success
+      res.status(200).json(robots.toJSON());
+    }).catch(err=>{
+      //failure
+      res.status(404).send({error: 'No robot found'});
     });
   })
 
   /* add a new robot to the database */
   .post((req, res)=> {
-    const botname = req.params.botname;
-    const botcode = req.params.code;
-    Robot.create({ name: botname, code: botcode }).then(robot=> {
+    const botname = req.body.botname;
+    const botcode = req.body.code;
+    const botpassword = req.body.password;
+    Robot.create({ name: botname, code: botcode, password: botpassword }).then(robot=> {
       //success
-      res.send(robot.toJSON());
+      res.status(201).send(robot.toJSON());
     }).catch((err)=> {
       //error
-      res.send(err);
+      res.status(412).send({error: 'Robot with too similar name exists'});
     });
   })
 
   /* update an existing robot in the database */
   .put((req, res)=>{
-    const botname = req.params.botname;
-    const botcode = req.params.code;
+    const botname = req.body.botname;
+    const botcode = req.body.code;
+    const botpassword = req.body.password;
     //get the existing robot
-    Robot.findOne({ where: { url_name: botname } }).then((robot)=>{
-      robot.updateAttributes({ code: botcode }).then((robot)=>{
-        //success
-        res.send(robot.toJSON());
-      });
+    Robot.findOne({ where: { url_name: req.params.botname } }).then((robot)=>{
+      if(robot.verify(botpassword)){
+        robot.updateAttributes({ code: botcode }).then((robot)=>{
+          //success
+          res.status(200).send(robot.toJSON());
+        });
+      }else{
+        //error: password failed
+        res.status(401).send({error: 'Incorrect password'});
+      }
     }).catch((err)=>{
-      //error
-      res.send(err);
+      //error: no bot found
+      res.status(404).send({error: 'No robot found'});
     });
   });
 
