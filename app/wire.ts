@@ -26,6 +26,8 @@ export interface SetupArguments {
 }
 
 export const Health = 20;
+export const ViewDistance = 9;
+export const FireDistance = 10;
 
 // @type: "setup"
 export interface SetupMessage extends WireMessageBase {
@@ -105,7 +107,7 @@ export type RobotId = string;
 
 export interface RobotData {
     name: RobotId;
-    location: Point;
+    location?: Point;
 }
 
 export interface RegenData {
