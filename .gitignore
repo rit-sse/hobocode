@@ -33,4 +33,7 @@ node_modules
 dist
 tmp
 
+app/test/*.js
+app/test/instrumented
+
 .*.sw*
