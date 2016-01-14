@@ -1,12 +1,14 @@
-require('./app/gulpfile'); // load app's tasks
+var gulp = require('gulp'); //Gulp 4.0+
+
+require('./app/gulpfile')(gulp); // load app's tasks
+require('./server/gulpfile')(gulp); // load server's tasks
 
 var del = require('del');
-var gulp = require('gulp'); //Gulp 4.0+
 var gls = require('gulp-live-server');
 
 gulp.task('lint', gulp.parallel('lint:app'));
 gulp.task('build', gulp.parallel('build:app'));
-gulp.task('test', gulp.parallel('test:app'));
+gulp.task('test', gulp.parallel('test:app', 'test:server'));
 
 gulp.task('verify', gulp.series('build', 'lint', 'test'));
 
