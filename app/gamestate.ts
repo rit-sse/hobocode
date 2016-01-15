@@ -54,15 +54,25 @@ export class GameState {
         Promise.all(
             this.entities.robots.map(robot => {
                 robot.generateTickDataAndReset(this);
-                return robot.proxy.getTurn(this.getStateFor(robot));
+                return robot.proxy.getTurn(this.getStateFor(robot)).then(response => response, this.createBotErrorHandler(robot));
             })
         ).then(this.handleResponses.bind(this));
+    }
+
+    createBotErrorHandler(robot: RobotGameObject) {
+        return (err: any): wire.ActionMessage[] => {
+            // If the bot errors out, replace it with a do-nothing script
+            robot.proxy.destroy();
+            robot.code = 'this.hold(); this.finalize_moves();';
+            robot.setupProxy(this.entities.robots.map(robot2 => this.initialInfoForOf(robot, robot2)), {x: this.width, y: this.height});
+            return [];
+        }
     }
 
     startNextTurn() {
         this.grantTurnIncome();
         Promise.all(
-            this.entities.robots.map(robot => robot.proxy.getTurn(this.getStateFor(robot)))
+            this.entities.robots.map(robot => robot.proxy.getTurn(this.getStateFor(robot)).then(response => response, this.createBotErrorHandler(robot)))
         ).then(this.handleResponses.bind(this));
     }
 

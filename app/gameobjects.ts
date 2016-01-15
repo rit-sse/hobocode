@@ -16,7 +16,7 @@ export class GameObject {
 export class RobotGameObject extends GameObject implements wire.RobotState {
     public proxy: RobotProxy;
     public shielded: boolean = false;
-    constructor(public name: wire.RobotId, private code: string,
+    constructor(public name: wire.RobotId, public code: string,
               public health: number, public energy: number,
               public location: wire.Point) {
         super(location);

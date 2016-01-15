@@ -30,7 +30,15 @@ export class RobotProxy {
             resolve = res;
             reject = rej;
         });
-        this.resolvers[this.seq] = {resolve, reject};
+        const seq = this.seq;
+        this.resolvers[seq] = {resolve, reject};
+        setTimeout(() => {
+            if (this.resolvers[seq]) {
+                // TIMEOUT! Forecibly resolve the promise
+                delete this.resolvers[seq];
+                this.resolvers[seq].reject({});
+            }
+        }, wire.RobotTimeout);
         return prom;
     }
 
