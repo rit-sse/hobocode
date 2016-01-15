@@ -1,5 +1,7 @@
 import * as PIXI from 'pixi.js';
 import RobotProxy from './robotproxy';
+import {GameState} from './gamestate';
+import * as wire from './wire';
 
 window.onload = function() {
     const renderer = PIXI.autoDetectRenderer(800, 600, {backgroundColor : 0x1099bb, view : document.getElementById('maincanvas') as HTMLCanvasElement});
@@ -20,4 +22,10 @@ window.onload = function() {
         // render the container
         renderer.render(stage);
     }
-}
+
+    // TODO: Manage games
+    const game = new GameState(8, 8, [{code: 'this.shoot(0, this.location); this.finalize_moves();'}]);
+    game.runMatch().then(frames => {
+        // TODO: render game
+    });
+};

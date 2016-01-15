@@ -25,6 +25,14 @@ export interface SetupArguments {
     costs: typeof Costs;
 }
 
+export const Health = 20;
+export const ViewDistance = 9;
+export const FireDistance = 10;
+export const MaxEnergy = 100;
+
+// in ms
+export const RobotTimeout = 500;
+
 // @type: "setup"
 export interface SetupMessage extends WireMessageBase {
     arguments: SetupArguments;
@@ -37,7 +45,7 @@ export interface StateMessage extends WireMessageBase {
 
 export interface StateMessageArguments {
     robot_state: RobotState;
-    tick_info: TickData[]
+    tick_info: TickData[];
 }
 
 export interface RobotState extends RobotData {
@@ -82,7 +90,7 @@ export interface MoveResult extends SuccessResult {
 
 // @type: "shoot"
 export interface ShootResult extends SuccessResult {
-    robots_hit: RobotId[]
+    robots_hit: RobotId[];
 }
 
 // @type: "shield"
@@ -103,7 +111,7 @@ export type RobotId = string;
 
 export interface RobotData {
     name: RobotId;
-    location: Point;
+    location?: Point;
 }
 
 export interface RegenData {

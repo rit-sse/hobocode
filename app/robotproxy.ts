@@ -18,7 +18,7 @@ export class RobotProxy {
         }
     }
 
-    private send(type: 'state',  data: wire.StateMessageArguments): Promise<wire.ActionMessage>;
+    private send(type: 'state',  data: wire.StateMessageArguments): Promise<wire.ActionMessage[]>;
     private send(type: 'setup',  data: wire.SetupArguments): Promise<wire.WireMessageArguments>;
     private send(type: string, data: {}): void; // This bogus overload is here to fool TS - overloads are hard
     private send(type: string, data: wire.WireMessageArguments): Promise<wire.WireMessageArguments> {
@@ -30,11 +30,19 @@ export class RobotProxy {
             resolve = res;
             reject = rej;
         });
-        this.resolvers[this.seq] = {resolve, reject};
+        const seq = this.seq;
+        this.resolvers[seq] = {resolve, reject};
+        setTimeout(() => {
+            if (this.resolvers[seq]) {
+                // TIMEOUT! Forecibly resolve the promise
+                delete this.resolvers[seq];
+                this.resolvers[seq].reject({});
+            }
+        }, wire.RobotTimeout);
         return prom;
     }
 
-    public getTurn(state: wire.StateMessageArguments): Promise<wire.ActionMessage> {
+    public getTurn(state: wire.StateMessageArguments): Promise<wire.ActionMessage[]> {
         return this.send('state', state);
     }
 
