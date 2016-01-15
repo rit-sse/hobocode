@@ -6,7 +6,7 @@ function randomInteger(max: number, min = 0) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function directionToLoaction(location: wire.Point, direction: wire.CardinalDirection) {
+function directionToLocation(location: wire.Point, direction: wire.CardinalDirection) {
     const newLoc = {x: location.x, y: location.y};
     switch (direction) {
         case wire.CardinalDirection.East:
@@ -328,7 +328,7 @@ export class GameState {
             robot.setResult({type: 'move', success: false});
             return true;
         }
-        const location = directionToLoaction(robot.location, direction);
+        const location = directionToLocation(robot.location, direction);
         if (0 > location.x || location.x > (this.width - 1)
          || 0 > location.y || location.y > (this.height - 1)) {
             this.hold(robot);
