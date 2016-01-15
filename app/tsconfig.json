@@ -8,6 +8,10 @@
     },
     "files": [
         "typings/tsd.d.ts",
-        "main.ts"
+        "main.ts",
+        "gamestate.ts",
+        "gameobject.ts",
+        "robotproxy.ts",
+        "wire.ts"
     ]
 }
