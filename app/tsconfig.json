@@ -10,7 +10,7 @@
         "typings/tsd.d.ts",
         "main.ts",
         "gamestate.ts",
-        "gameobject.ts",
+        "gameobjects.ts",
         "robotproxy.ts",
         "wire.ts"
     ]
