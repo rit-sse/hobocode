@@ -6,6 +6,21 @@ function randomInteger(max: number, min = 0) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function directionToLoaction(location: wire.Point, direction: wire.CardinalDirection) {
+    const newLoc = {x: location.x, y: location.y};
+    switch (direction) {
+        case wire.CardinalDirection.East:
+            newLoc.x += 1;
+        case wire.CardinalDirection.South:
+            newLoc.y -= 1;
+        case wire.CardinalDirection.West:
+            newLoc.x -= 1;
+        case wire.CardinalDirection.North:
+            newLoc.y += 1;
+    }
+    return newLoc;
+}
+
 export class GameState {
     public entities: {
         robots: RobotGameObject[],
@@ -180,8 +195,12 @@ export class GameState {
                    }
                });
               this.commitPendingMoves();
+              this.snapshotStateForRender();
          });
     }
+
+    // TODO
+    snapshotStateForRender() {}
 
     hold(robot: RobotGameObject, setResult?: boolean) {
         if (setResult) {
@@ -209,44 +228,128 @@ export class GameState {
             if (bot.inRange(robot, wire.ViewDistance)) {
                 bot.addObservation({type: 'shield', location: robot.location});
             }
-        })
+        });
         return false;
     }
 
+    private pendingMoveTargets: {[index: string]: {bots: RobotGameObject[], location: wire.Point}} = {};
     move(robot: RobotGameObject, action: wire.MoveActionMessage): boolean {
-        // TODO: Store pending moves so that they're all collected into a single "commit" so nothing is done before conflicts get checked
+        if (!action.arguments) {
+            this.hold(robot);
+            robot.setResult({type: 'move', success: false});
+            return true;
+        }
+        const direction = action.arguments.direction;
+        if (typeof direction !== 'number') {
+            this.hold(robot);
+            robot.setResult({type: 'move', success: false});
+            return true;
+        }
+        const location = directionToLoaction(robot.location, direction);
+        if (0 > location.x || location.x > (this.width - 1)
+         || 0 > location.y || location.y > (this.height - 1)) {
+            this.hold(robot);
+            robot.setResult({type: 'move', success: false, obstacle: wire.ObstacleType.Wall});
+            return true;
+        }
+        const key = `${location.x},${location.y}`;
+        this.pendingMoveTargets[key] = this.pendingMoveTargets[key] || {location, bots: []};
+        this.pendingMoveTargets[key].bots.push(robot);
         return false;
     }
 
-    commitPendingMoves() {}
+    commitPendingMoves() {
+        // Collect a list of all move resolutions (and how to undo them)
+        const undo: {[index: string]: {func: () => void, bot: RobotGameObject}} = {};
+        for (const key in this.pendingMoveTargets) {
+            const {location, bots: [bot]} = this.pendingMoveTargets[key];
+            const oldLocation = {x: bot.location.x, y: bot.location.y};
+            bot.location.x = location.x;
+            bot.location.y = location.y;
+            undo[bot.name] = {func: ((bot: RobotGameObject, oldLocation: wire.Point) => () => {
+                bot.location.x = oldLocation.x;
+                bot.location.y = oldLocation.y;
+            })(bot, oldLocation), bot};
+        }
+        // Collect all robots at each location
+        const contents: {[index: string]: {bots: RobotGameObject[], location: wire.Point}} = {};
+        this.entities.robots.forEach(bot => {
+            const key = `${bot.location.x},${bot.location.y}`;
+            contents[key] = contents[key] || {location: {x: bot.location.x, y: bot.location.y}, bots: []};
+            contents[key].bots.push(bot);
+        });
+        function undoMovement(undoFunc: () => void, bot: RobotGameObject) {
+            undoFunc();
+            bot.setResult({type: 'move', success: false, obstacle: wire.ObstacleType.Robot});
+            const oldLoc = `${bot.location.x},${bot.location.y}`;
+            const oldContents = contents[oldLoc];
+            contents[oldLoc] = {location: {x: bot.location.x, y: bot.location.y}, bots: [bot]};
+            if (oldContents) {
+                oldContents.bots.forEach(bot => {
+                    const {func: undoFunc} = undo[bot.name];
+                    if (undoFunc) {
+                        delete undo[bot.name];
+                        undoMovement(undoFunc, bot);
+                    }
+                });
+            }
+        }
+        // Remove all invalid moves
+        for (const key of Object.keys(contents)) {
+            if (contents[key]) {
+                const {location, bots} = contents[key];
+                if (bots.length > 1) {
+                    bots.forEach(bot => {
+                        const {func: undoFunc} = undo[bot.name];
+                        if (undoFunc) {
+                            delete undo[bot.name];
+                            undoMovement(undoFunc, bot);
+                        }
+                    });
+                }
+            }
+        }
+        // Anyone left in the undo map has valid moves
+        for (const key in undo) {
+            const {bot} = undo[key];
+            bot.setResult({type: 'move', success: true});
+        }
+        this.pendingMoveTargets = {};
+    }
 
     shoot(robot: RobotGameObject, action: wire.ShootActionMessage): boolean {
         if (!action.arguments) {
             this.hold(robot);
+            robot.setResult({type: 'shoot', success: false});
             return true;
         }
         const location = action.arguments.location;
         if (!location || typeof location.x !== 'number' || typeof location.y !== 'number') {
             this.hold(robot);
+            robot.setResult({type: 'shoot', success: false});
             return true;
         }
         if (0 > location.x || location.x > (this.width - 1)
          || 0 > location.y || location.y > (this.height - 1)) {
-             this.hold(robot);
-             return true;
-         }
+            this.hold(robot);
+            robot.setResult({type: 'shoot', success: false});
+            return true;
+        }
         const radius = action.arguments.radius;
         const cost = wire.Costs.moves.shoot[radius];
         if (!cost || typeof radius !== 'number') {
             this.hold(robot);
+            robot.setResult({type: 'shoot', success: false});
             return true;
         }
         if (!robot.inRange({location}, wire.FireDistance)) {
             this.hold(robot);
+            robot.setResult({type: 'shoot', success: false});
             return true;
         }
         if (robot.energy - cost < 0) {
             this.hold(robot);
+            robot.setResult({type: 'shoot', success: false});
             return true;
         }
         robot.energy -= cost;
