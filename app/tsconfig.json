@@ -8,6 +8,7 @@
     },
     "files": [
         "typings/tsd.d.ts",
-        "main.ts"
+        "main.ts",
+        "api-client.ts"
     ]
 }

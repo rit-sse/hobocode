@@ -1,5 +1,8 @@
 import * as PIXI from 'pixi.js';
 import RobotProxy from './robotproxy';
+import {APIClient} from './api-client';
+
+var client: APIClient = new APIClient();
 
 window.onload = function() {
     const renderer = PIXI.autoDetectRenderer(800, 600, {backgroundColor : 0x1099bb, view : document.getElementById('maincanvas') as HTMLCanvasElement});
