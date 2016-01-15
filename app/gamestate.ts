@@ -21,6 +21,8 @@ function directionToLoaction(location: wire.Point, direction: wire.CardinalDirec
     return newLoc;
 }
 
+export interface GameFrame {}
+
 export class GameState {
     public entities: {
         robots: RobotGameObject[],
@@ -50,13 +52,15 @@ export class GameState {
         this.spawnRegens(robots.length - 1);
 
         this.entities.robots.forEach(robot => robot.setupProxy(this.entities.robots.map(robot2 => this.initialInfoForOf(robot, robot2)), {x: width, y: height}));
+    }
 
-        Promise.all(
+    runMatch() {
+        return Promise.all(
             this.entities.robots.map(robot => {
                 robot.generateTickDataAndReset(this);
                 return robot.proxy.getTurn(this.getStateFor(robot)).then(response => response, this.createBotErrorHandler(robot));
             })
-        ).then(this.handleResponses.bind(this));
+        ).then(data => this.handleResponses(data));
     }
 
     createBotErrorHandler(robot: RobotGameObject) {
@@ -66,22 +70,23 @@ export class GameState {
             robot.code = 'this.hold(); this.finalize_moves();';
             robot.setupProxy(this.entities.robots.map(robot2 => this.initialInfoForOf(robot, robot2)), {x: this.width, y: this.height});
             return [];
-        }
+        };
     }
 
     startNextTurn() {
         this.grantTurnIncome();
-        Promise.all(
+        return Promise.all(
             this.entities.robots.map(robot => robot.proxy.getTurn(this.getStateFor(robot)).then(response => response, this.createBotErrorHandler(robot)))
-        ).then(this.handleResponses.bind(this));
+        ).then(data => this.handleResponses(data));
     }
 
-    handleResponses(listOfActionMessages: wire.ActionMessage[][]) {
+    handleResponses(listOfActionMessages: wire.ActionMessage[][]): Promise<GameFrame[]> {
         this.simulateTurn(listOfActionMessages);
         if (this.entities.robots.length <= 1) {
-            // TODO: GAME OVER, declare winner
+            // GAME OVER, return game frames/declare winner
+            return Promise.resolve([]);
         } else {
-            this.startNextTurn();
+            return this.startNextTurn();
         }
     }
 

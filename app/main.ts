@@ -23,6 +23,9 @@ window.onload = function() {
         renderer.render(stage);
     }
 
-    const testbot: wire.RobotData = {location: {x: 4, y: 4}, name: 'test'};
-    new GameState(8, 8, [new RobotProxy([testbot], '', {x: 8, y: 8})]);
+    // TODO: Manage games
+    const game = new GameState(8, 8, [{code: 'this.shoot(0, this.location); this.finalize_moves();'}]);
+    game.runMatch().then(frames => {
+        // TODO: render game
+    });
 };
