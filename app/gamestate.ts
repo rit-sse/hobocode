@@ -166,6 +166,10 @@ export class GameState {
         }
     }
 
+    /**
+     * For the first robot, get the initial info the robot knows of the other robot
+     * (minimally name, but also position if it is in view)
+     */
     initialInfoForOf(forRobot: RobotGameObject, ofRobot: RobotGameObject): wire.RobotData {
         if (forRobot.inRange(ofRobot, wire.ViewDistance)) {
             return {name: ofRobot.name, location: ofRobot.location};
