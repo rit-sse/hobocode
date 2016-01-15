@@ -21,6 +21,10 @@ function directionToLoaction(location: wire.Point, direction: wire.CardinalDirec
     return newLoc;
 }
 
+function toKey(location: wire.Point) {
+    return `${location.x},${location.y}`;
+}
+
 export interface GameFrame {
     robots: (wire.RobotState & {shielded: boolean})[];
     regens: wire.RegenData[];
@@ -117,10 +121,10 @@ export class GameState {
     pickupRegens() {
         const botLocations: {[index: string]: RobotGameObject} = {};
         for (const bot of this.entities.robots) {
-            botLocations[`${bot.location.x},${bot.location.y}`] = bot;
+            botLocations[toKey(bot.location)] = bot;
         }
         this.entities.regens = this.entities.regens.filter(regen => {
-            const key = `${regen.location.x},${regen.location.y}`;
+            const key = toKey(regen.location);
             if (botLocations[key]) {
                 const bot = botLocations[key];
                 bot.energy += regen.value;
@@ -145,11 +149,11 @@ export class GameState {
     }
 
     markLocation(point: wire.Point) {
-        this.grid[`${point.x},${point.y}`] = true;
+        this.grid[toKey(point)] = true;
     }
 
     clearLocation(point: wire.Point) {
-        delete this.grid[`${point.x},${point.y}`];
+        delete this.grid[toKey(point)];
     }
 
     spawnRegens(count: number) {
@@ -327,7 +331,7 @@ export class GameState {
             robot.setResult({type: 'move', success: false, obstacle: wire.ObstacleType.Wall});
             return true;
         }
-        const key = `${location.x},${location.y}`;
+        const key = toKey(location);
         this.pendingMoveTargets[key] = this.pendingMoveTargets[key] || {location, bots: []};
         this.pendingMoveTargets[key].bots.push(robot);
         return false;
@@ -349,14 +353,14 @@ export class GameState {
         // Collect all robots at each location
         const contents: {[index: string]: {bots: RobotGameObject[], location: wire.Point}} = {};
         this.entities.robots.forEach(bot => {
-            const key = `${bot.location.x},${bot.location.y}`;
+            const key = toKey(bot.location);
             contents[key] = contents[key] || {location: {x: bot.location.x, y: bot.location.y}, bots: []};
             contents[key].bots.push(bot);
         });
         function undoMovement(undoFunc: () => void, bot: RobotGameObject) {
             undoFunc();
             bot.setResult({type: 'move', success: false, obstacle: wire.ObstacleType.Robot});
-            const oldLoc = `${bot.location.x},${bot.location.y}`;
+            const oldLoc = toKey(bot.location);
             const oldContents = contents[oldLoc];
             contents[oldLoc] = {location: {x: bot.location.x, y: bot.location.y}, bots: [bot]};
             if (oldContents) {
