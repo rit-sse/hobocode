@@ -21,9 +21,14 @@ function directionToLoaction(location: wire.Point, direction: wire.CardinalDirec
     return newLoc;
 }
 
-export interface GameFrame {}
+export interface GameFrame {
+    robots: (wire.RobotState & {shielded: boolean})[];
+    regens: wire.RegenData[];
+    shots_fired: {from: wire.Point, to: wire.Point, radius: number}[];
+}
 
 export class GameState {
+    private frames: GameFrame[] = [];
     public entities: {
         robots: RobotGameObject[],
         regens: RegenGameObject[],
@@ -84,7 +89,7 @@ export class GameState {
         this.simulateTurn(listOfActionMessages);
         if (this.entities.robots.length <= 1) {
             // GAME OVER, return game frames/declare winner
-            return Promise.resolve([]);
+            return Promise.resolve(this.frames);
         } else {
             return this.startNextTurn();
         }
@@ -263,8 +268,14 @@ export class GameState {
         });
     }
 
-    // TODO
-    snapshotStateForRender() {}
+    snapshotStateForRender() {
+        this.frames.push({
+            regens: this.entities.regens.map(reg => ({value: reg.value, location: {x: reg.location.x, y: reg.location.y}})),
+            robots: this.entities.robots.map(bot => ({health: bot.health, energy: bot.energy, shielded: bot.shielded, name: bot.name, location: {x: bot.location.x, y: bot.location.y}})),
+            shots_fired: this.shotsFired,
+        });
+        this.shotsFired = [];
+    }
 
     hold(robot: RobotGameObject, setResult?: boolean) {
         if (setResult) {
@@ -381,6 +392,7 @@ export class GameState {
         this.pendingMoveTargets = {};
     }
 
+    private shotsFired: {from: wire.Point, to: wire.Point, radius: number}[] = [];
     shoot(robot: RobotGameObject, action: wire.ShootActionMessage): boolean {
         if (!action.arguments) {
             this.hold(robot);
@@ -420,6 +432,7 @@ export class GameState {
         const result: wire.ShootResult = {robots_hit: [], success: true, type: 'shoot'};
         const observation: wire.ShotObservation = {location: robot.location, type: 'shot'};
         const explosionObservation: wire.ExplosionObservation = {location, radius, type: 'explosion'};
+        this.shotsFired.push({from: observation.location, to: explosionObservation.location, radius});
         this.entities.robots.forEach(bot => {
             if (bot.inRange({location}, radius + 1)) {
                 result.robots_hit.push(bot.name);
