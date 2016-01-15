@@ -28,6 +28,7 @@ export interface SetupArguments {
 export const Health = 20;
 export const ViewDistance = 9;
 export const FireDistance = 10;
+export const MaxEnergy = 100;
 
 // @type: "setup"
 export interface SetupMessage extends WireMessageBase {

@@ -35,7 +35,9 @@ export class RobotGameObject extends GameObject implements wire.RobotState {
     setResult(result: wire.ActionResult) {
         this.result = result;
     }
-    generateTickDataAndReset(board: GameState): wire.TickData {
+
+    private ticks: wire.TickData[] = [];
+    generateTickDataAndReset(board: GameState) {
         const ret: wire.TickData = {
             in_view: {
                 robots: board.entities.robots.filter(bot => this.inRange(bot, wire.ViewDistance)).map(bot => ({location: bot.location, name: bot.name})),
@@ -46,6 +48,12 @@ export class RobotGameObject extends GameObject implements wire.RobotState {
         };
         this.observations = [];
         this.result = undefined;
+        this.ticks.push(ret);
+    }
+
+    getTurnResultsAndReset(): wire.TickData[] {
+        const ret = this.ticks;
+        this.ticks = [];
         return ret;
     }
 }

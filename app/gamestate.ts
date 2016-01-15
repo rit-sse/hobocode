@@ -51,10 +51,66 @@ export class GameState {
 
         this.entities.robots.forEach(robot => robot.setupProxy(this.entities.robots.map(robot2 => this.initialInfoForOf(robot, robot2)), {x: width, y: height}));
 
-        // TODO: Generate correct starting data, loop until match over
+        Promise.all(
+            this.entities.robots.map(robot => {
+                robot.generateTickDataAndReset(this);
+                return robot.proxy.getTurn(this.getStateFor(robot));
+            })
+        ).then(this.handleResponses.bind(this));
+    }
+
+    startNextTurn() {
+        this.grantTurnIncome();
         Promise.all(
             this.entities.robots.map(robot => robot.proxy.getTurn(this.getStateFor(robot)))
-        ).then(listOfActionMessages => this.simulateTurn(listOfActionMessages));
+        ).then(this.handleResponses.bind(this));
+    }
+
+    handleResponses(listOfActionMessages: wire.ActionMessage[][]) {
+        this.simulateTurn(listOfActionMessages);
+        if (this.entities.robots.length <= 1) {
+            // TODO: GAME OVER, declare winner
+        } else {
+            this.startNextTurn();
+        }
+    }
+
+    removeDeadBots() {
+        this.entities.robots = this.entities.robots.filter(bot => {
+            if (bot.health <= 0) {
+                bot.proxy.destroy();
+            }
+            return bot.health > 0;
+        });
+    }
+
+    grantTurnIncome() {
+        this.entities.robots.forEach(bot => {
+            bot.shielded = false;
+            bot.energy += wire.Costs.income;
+            if (bot.energy > wire.MaxEnergy) {
+                bot.energy = wire.MaxEnergy;
+            }
+        });
+    }
+
+    pickupRegens() {
+        const botLocations: {[index: string]: RobotGameObject} = {};
+        for (const bot of this.entities.robots) {
+            botLocations[`${bot.location.x},${bot.location.y}`] = bot;
+        }
+        this.entities.regens = this.entities.regens.filter(regen => {
+            const key = `${regen.location.x},${regen.location.y}`;
+            if (botLocations[key]) {
+                const bot = botLocations[key];
+                bot.energy += regen.value;
+                if (bot.energy > wire.MaxEnergy) {
+                    bot.energy = wire.MaxEnergy;
+                }
+                return false;
+            }
+            return true;
+        });
     }
 
     getAvailableLocation(): wire.Point {
@@ -105,20 +161,8 @@ export class GameState {
                 },
                 name: robot.name
             },
-            tick_info: this.tickInfoFor(robot)
+            tick_info: robot.getTurnResultsAndReset()
         };
-    }
-
-    tickInfoFor(robot: RobotGameObject): wire.TickData[] {
-        const data: wire.TickData = {
-            in_view: {
-                robots: this.entities.robots.filter(bot => robot.inRange(bot, wire.ViewDistance)),
-                regens: this.entities.regens.filter(gen => robot.inRange(gen, wire.ViewDistance)),
-            },
-            observations: [],
-            action_result: undefined
-        };
-        return [data];
     }
 
     static priority: {[key: string]: number} = {
@@ -143,60 +187,65 @@ export class GameState {
          * If any action is "invalid" - for example movement off the board, shielding for more than allowed, shooting for more than allowed 
          *   - then the requested action is ignored and the robot acts if it had used "hold" instead. Any remaining actions for this turn are discarded.
          */
-        // TODO: Build observactions/responses as actions are executed
-         const max_steps = actions.reduce((max, actions) => actions.length > max ? actions.length : max, 0);
-         const turns: {[index: number]: wire.ActionMessage}[] = [];
-         for (let i = 0; i < max_steps; i++) {
-             for (let index = 0; index < actions.length; index++) {
-                 turns[i] = turns[i] || {};
-                 // Handle malformed messages from bots (in case of rogue bots)
-                 if (!(actions[index] instanceof Array)) {
-                     turns[i][index] = {command: 'hold'};
-                 } else {
-                     turns[i][index] = actions[index][i];
-                 }
-             }
-         }
-         const exhausted: {[key: string]: boolean} = {};
-         turns.forEach(turn => {
-             const botAndActions: {bot: RobotGameObject, action: wire.ActionMessage}[] = [];
-             for (const key in turn) {
-                 const bot = this.entities.robots[key];
-                 const action = turn[key];
-                 botAndActions.push({bot, action});
-             }
-             botAndActions
-               .sort((a, b) => (GameState.priority[a.action.command] - GameState.priority[b.action.command]))
-               .forEach(({bot, action}) => {
-                   if (exhausted[bot.name]) {
-                       return;
-                   }
-                   switch (action.command) {
-                       case 'hold':
-                         exhausted[bot.name] = this.hold(bot, true);
-                         break;
-                       case 'shield':
-                         exhausted[bot.name] = this.shield(bot);
-                         break;
-                       case 'move':
-                         exhausted[bot.name] = this.move(bot, action as wire.MoveActionMessage);
-                         break;
-                       case 'shoot':
-                         this.commitPendingMoves();
-                         exhausted[bot.name] = this.shoot(bot, action as wire.ShootActionMessage);
-                         break;
-                       case 'scan':
-                         this.commitPendingMoves();
-                         exhausted[bot.name] = this.scan(bot);
-                         break;
-                       default:
-                         this.hold(bot);
-                         exhausted[bot.name] = true;
-                   }
-               });
-              this.commitPendingMoves();
-              this.snapshotStateForRender();
-         });
+        const max_steps = actions.reduce((max, actions) => actions.length > max ? actions.length : max, 0);
+        const turns: {[index: number]: wire.ActionMessage}[] = [];
+        for (let i = 0; i < max_steps; i++) {
+            for (let index = 0; index < actions.length; index++) {
+                turns[i] = turns[i] || {};
+                // Handle malformed messages from bots (in case of rogue bots)
+                if (!(actions[index] instanceof Array)) {
+                    turns[i][index] = {command: 'hold'};
+                } else {
+                    turns[i][index] = actions[index][i];
+                }
+            }
+        }
+
+        const exhausted: {[key: string]: boolean} = {};
+        turns.forEach(turn => {
+            const botAndActions: {bot: RobotGameObject, action: wire.ActionMessage}[] = [];
+            for (const key in turn) {
+                const bot = this.entities.robots[key];
+                const action = turn[key];
+                botAndActions.push({bot, action});
+            }
+            botAndActions
+              .sort((a, b) => (GameState.priority[a.action.command] - GameState.priority[b.action.command]))
+              .forEach(({bot, action}) => {
+                  if (exhausted[bot.name]) {
+                      return;
+                  }
+                  switch (action.command) {
+                      case 'hold':
+                        exhausted[bot.name] = this.hold(bot, true);
+                        break;
+                      case 'shield':
+                        exhausted[bot.name] = this.shield(bot);
+                        break;
+                      case 'move':
+                        exhausted[bot.name] = this.move(bot, action as wire.MoveActionMessage);
+                        break;
+                      case 'shoot':
+                        this.commitPendingMoves();
+                        exhausted[bot.name] = this.shoot(bot, action as wire.ShootActionMessage);
+                        break;
+                      case 'scan':
+                        this.commitPendingMoves();
+                        exhausted[bot.name] = this.scan(bot);
+                        break;
+                      default:
+                        this.hold(bot);
+                        exhausted[bot.name] = true;
+                  }
+              });
+             this.commitPendingMoves();
+             this.removeDeadBots();
+             this.entities.robots.forEach(bot => {
+                 bot.generateTickDataAndReset(this);
+             });
+             this.pickupRegens();
+             this.snapshotStateForRender();
+        });
     }
 
     // TODO
