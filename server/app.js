@@ -15,10 +15,11 @@ app.use(express.static(path.join(__dirname, '..', 'app', 'dist')));
 app.use('/api/v1', robot);
 
 app.use((err, req, res, next) => {
-  res.write('ERROR');
-  res.write(err.stack);
+  res.status(500).send(err.stack);
 });
 
 const server = http.createServer(app).listen(3000, ()=>{
   console.log('listening on port 3000...');
 });
+
+module.exports =  app;

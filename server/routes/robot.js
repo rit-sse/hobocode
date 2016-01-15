@@ -7,15 +7,17 @@ const Robot = require('../models').Robot;
 router.route('/robots/:botname?/')
 
   /* get a robot from the database */
-  .get((req, res)=>{
+  .get((req, res, next)=>{
+    //console.log('res:', Object.keys(res.prototype));
     const botname = req.params.botname;
-    Robot.findOne({ where: { url_name: botname } }).then((robots)=>{
+    Robot.findOne({ where: { url_name: botname } }).then((robot)=>{
       //success
-      res.status(200).json(robots.toJSON());
-    }).catch(err=>{
-      //failure
-      res.status(404).send({error: 'No robot found'});
-    });
+      if(robot === null){
+        res.status(404).send({error: 'No robot found'});
+      }else{
+        res.status(200).json(robot.toJSON());
+      }
+    }).catch(next);
   })
 
   /* add a new robot to the database */
@@ -39,7 +41,7 @@ router.route('/robots/:botname?/')
     const botpassword = req.body.password;
     //get the existing robot
     Robot.findOne({ where: { url_name: req.params.botname } }).then((robot)=>{
-      if(robot.verify(botpassword)){
+      if(robot.verifyPassword(botpassword)){
         robot.updateAttributes({ code: botcode }).then((robot)=>{
           //success
           res.status(200).send(robot.toJSON());

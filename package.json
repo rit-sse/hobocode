@@ -45,6 +45,8 @@
     "path": "^0.12.7",
     "pixi.js": "^3.0.9",
     "sinon": "^1.17.2",
+    "supertest": "^1.1.0",
+    "supertest-as-promised": "^2.0.2",
     "tslint": "^3.2.1",
     "typescript": "^1.7.5"
   },
