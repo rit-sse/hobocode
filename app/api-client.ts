@@ -2,6 +2,23 @@ import * as Urlify from 'urlify';
 
 const urlify = Urlify.create();
 
+const makeRequestPromise(method: string, url: string): Promise<{}> {
+  return new Promise((resolve, reject) => {
+    const xhr: XMLHttpRequest = new XMLHttpRequest();
+    xhr.open(method, url);
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        resolve(JSON.parse(xhr.responseText));
+      } else {
+        reject(JSON.parse(xhr.responseText));
+      }
+    };
+
+    xhr.send();
+  });
+}
+
 export class APIClient {
   apiRoot: string;
 
@@ -13,20 +30,7 @@ export class APIClient {
   }
 
   getRobot(name: string): Promise<{}> {
-    return new Promise((resolve, reject) => {
-      const xhr: XMLHttpRequest = new XMLHttpRequest();
-      xhr.open('GET', `${this.apiRoot}/robots/${urlify(name)}`);
-
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          resolve(JSON.parse(xhr.responseText));
-        } else {
-          reject(JSON.parse(xhr.responseText));
-        }
-      };
-
-      xhr.send();
-    });
+    return makeRequestPromise('GET', `${this.apiRoot}/robots/${urlify(name)}`);
   }
 }
 
