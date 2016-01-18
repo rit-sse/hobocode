@@ -2,10 +2,11 @@ import * as Urlify from 'urlify';
 
 const urlify = Urlify.create();
 
-const makeRequestPromise(method: string, url: string): Promise<{}> {
+const makeRequestPromise(method: string, url: string, body?: {}): Promise<{}> {
   return new Promise((resolve, reject) => {
     const xhr: XMLHttpRequest = new XMLHttpRequest();
     xhr.open(method, url);
+    xhr.setRequestHeader('Content-Type', 'application/json');
 
     xhr.onload = () => {
       if (xhr.status === 200) {
@@ -15,7 +16,7 @@ const makeRequestPromise(method: string, url: string): Promise<{}> {
       }
     };
 
-    xhr.send();
+    body === undefined ? xhr.send() : xhr.send(JSON.stringify(body));
   });
 }
 
@@ -32,7 +33,11 @@ export class APIClient {
   getRobot(name: string): Promise<{}> {
     return makeRequestPromise('GET', `${this.apiRoot}/robots/${urlify(name)}`);
   }
+
+  createRobot(robot: {botname: string, code: string, password?: string}) {
+  }
 }
 
 var client: APIClient = new APIClient('http://localhost:3000/api/v1/');
 client.getRobot('nunu bot').then((response) => console.log(response));
+client.createRobot({botname: `MyBot${Date.now()}`, code: 'foo'}).then((r) => console.log(r));
