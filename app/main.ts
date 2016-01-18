@@ -24,8 +24,9 @@ window.onload = function() {
     }
 
     // TODO: Manage games
-    const game = new GameState(8, 8, [{code: 'this.shoot(0, this.location); this.finalize_moves();'}]);
+    const game = new GameState(8, 8, [{code: 'this.shoot(0, this.location); this.finalize_moves();'}, {code: 'this.shoot(0, this.location); this.finalize_moves();'}]);
     game.runMatch().then(frames => {
+        console.log(frames);
         // TODO: render game
     });
 };

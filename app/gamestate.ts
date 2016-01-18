@@ -67,7 +67,7 @@ export class GameState {
         return Promise.all(
             this.entities.robots.map(robot => {
                 robot.generateTickDataAndReset(this);
-                return robot.proxy.getTurn(this.getStateFor(robot)).then(response => response, this.createBotErrorHandler(robot));
+                return robot.proxy.getTurn(this.getStateFor(robot)).then(response => response).catch(this.createBotErrorHandler(robot));
             })
         ).then(data => this.handleResponses(data));
     }
@@ -85,7 +85,7 @@ export class GameState {
     startNextTurn() {
         this.grantTurnIncome();
         return Promise.all(
-            this.entities.robots.map(robot => robot.proxy.getTurn(this.getStateFor(robot)).then(response => response, this.createBotErrorHandler(robot)))
+            this.entities.robots.map(robot => robot.proxy.getTurn(this.getStateFor(robot)).then(response => response).catch(this.createBotErrorHandler(robot)))
         ).then(data => this.handleResponses(data));
     }
 

@@ -4,33 +4,32 @@ import * as wire from '../wire';
 
 class Robot {
     private gridSize: wire.Point;
-    private robots: wire.RobotData[];
+    private robots: wire.RobotData[] = [];
 
     private health: number;
     private energy: number;
     private location: wire.Point;
-    private tickInfo: wire.TickData[];
+    private tickInfo: wire.TickData[] = [];
 
     private inView: wire.ViewData;
-    private wereInView: wire.ViewData[];
-    private botsWereInView: wire.RobotData[];
-    private regensWereInView: wire.RegenData[];
+    private wereInView: wire.ViewData[] = [];
+    private botsWereInView: wire.RobotData[] = [];
+    private regensWereInView: wire.RegenData[] = [];
 
-    private observations: wire.Observation[];
-    private detailedObservations: wire.Observation[];
+    private observations: wire.Observation[] = [];
+    private detailedObservations: wire.Observation[] = [];
 
-    private actionResults: wire.ActionResult[];
+    private actionResults: wire.ActionResult[] = [];
 
-    private moves: wire.ActionMessage[];
+    private moves: wire.ActionMessage[] = [];
 
-    private sequence: number;
+    private sequence: number = 0;
 
     private bot: () => void;
 
     private costs: typeof wire.Costs;
 
-    constructor(private worker: WorkerGlobalScope) {
-        this.worker.onmessage = (event) => this.onMessage(event.data);
+    constructor() {
     }
 
     onMessage(message: wire.WireMessage) {
@@ -46,7 +45,7 @@ class Robot {
         this.gridSize = setupArgs.gridSize;
         this.robots = setupArgs.robots;
         this.costs = setupArgs.costs;
-        this.bot = eval(`function() { ${setupArgs.code} } `).bind(this);
+        this.bot = eval(`(function run() { ${setupArgs.code} })`).bind(this);
     }
 
     newTick(state: wire.StateMessageArguments) {
@@ -169,7 +168,7 @@ class Robot {
         }
         const message = {type: 'action', sequence: this.sequence, arguments: this.moves} as wire.ActionEnvelopeMessage;
 
-        this.worker.postMessage(message);
+        postMessage(message);
 
         this.reset_moves();
     }
@@ -200,4 +199,6 @@ class Robot {
 
 }
 
-new Robot(this);
+const bot = new Robot();
+
+onmessage = (evt) => bot.onMessage(evt.data);

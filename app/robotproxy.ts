@@ -5,10 +5,11 @@ export class RobotProxy {
     private seq = 0;
     private resolvers: {[index: number]: {resolve: (a: any) => void, reject: (e: any) => void}} = {};
 
-    constructor(robots: wire.RobotData[], code: string, grideSize: wire.Point) {
+    constructor(robots: wire.RobotData[], code: string, gridSize: wire.Point) {
         this.worker = new Worker('./robot-api.js');
         this.worker.onmessage = (event) => this.onmessage(event.data);
-        this.send('setup', {robots, code, grideSize, costs: wire.Costs}); // We dont wait for a response to setup
+        const args: wire.SetupArguments = {robots, code, gridSize, costs: wire.Costs};
+        this.send('setup', args).catch((e) => {}); // We dont wait for a response to setup
     }
 
     private onmessage(data: wire.WireMessage) {
@@ -33,10 +34,11 @@ export class RobotProxy {
         const seq = this.seq;
         this.resolvers[seq] = {resolve, reject};
         setTimeout(() => {
-            if (this.resolvers[seq]) {
+            const resolver = this.resolvers[seq];
+            if (resolver) {
                 // TIMEOUT! Forecibly resolve the promise
                 delete this.resolvers[seq];
-                this.resolvers[seq].reject({});
+                resolver.reject({});
             }
         }, wire.RobotTimeout);
         return prom;
