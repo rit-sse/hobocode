@@ -2,14 +2,14 @@ import * as Urlify from 'urlify';
 
 const urlify = Urlify.create();
 
-const makeRequestPromise(method: string, url: string, body?: {}): Promise<{}> {
+const makeRequestPromise(method: string, url: string, expectedResponse: number, body?: {}): Promise<{}> {
   return new Promise((resolve, reject) => {
     const xhr: XMLHttpRequest = new XMLHttpRequest();
     xhr.open(method, url);
     xhr.setRequestHeader('Content-Type', 'application/json');
 
     xhr.onload = () => {
-      if (xhr.status === 200) {
+      if (xhr.status === expectedResponse) {
         resolve(JSON.parse(xhr.responseText));
       } else {
         reject(JSON.parse(xhr.responseText));
@@ -31,10 +31,11 @@ export class APIClient {
   }
 
   getRobot(name: string): Promise<{}> {
-    return makeRequestPromise('GET', `${this.apiRoot}/robots/${urlify(name)}`);
+    return makeRequestPromise('GET', `${this.apiRoot}/robots/${urlify(name)}`, 200);
   }
 
   createRobot(robot: {botname: string, code: string, password?: string}) {
+    return makeRequestPromise('POST', `${this.apiRoot}/robots`, 201, robot);
   }
 }
 
