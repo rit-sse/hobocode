@@ -144,7 +144,7 @@ export class GameState {
             placeX = randomInteger(this.width);
             placeY = randomInteger(this.height);
             placeLocation = `${placeX},${placeY}`;
-        } while (this.grid[placeLocation] === undefined);
+        } while (this.grid[placeLocation]);
         return {x: placeX, y: placeY};
     }
 
