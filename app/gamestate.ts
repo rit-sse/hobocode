@@ -141,8 +141,8 @@ export class GameState {
         let placeX: number, placeY: number;
         let placeLocation = '';
         do {
-            placeX = randomInteger(this.width);
-            placeY = randomInteger(this.height);
+            placeX = randomInteger(this.width - 1);
+            placeY = randomInteger(this.height - 1);
             placeLocation = `${placeX},${placeY}`;
         } while (this.grid[placeLocation]);
         return {x: placeX, y: placeY};
@@ -238,6 +238,7 @@ export class GameState {
                 botAndActions.push({bot, action});
             }
             botAndActions
+              .filter(msg => (msg && msg.action && typeof msg.action.command === 'string'))
               .sort((a, b) => (GameState.priority[a.action.command] - GameState.priority[b.action.command]))
               .forEach(({bot, action}) => {
                   if (exhausted[bot.name]) {

@@ -56,7 +56,7 @@ class Robot {
 
         this.tickInfo = state.tick_info;
 
-        this.inView = this.tickInfo[this.tickInfo.length - 1].in_view;
+        this.inView = (this.tickInfo[this.tickInfo.length - 1] || {in_view: {robots: [], regens: []}}).in_view;
         this.wereInView = this.tickInfo.reduce(function(list, viewData) {
             return list.concat(viewData.in_view);
         }, []);
