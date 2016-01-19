@@ -30,8 +30,8 @@ module.exports = function(sequelize, DataTypes) {
     password: {
       type: DataTypes.STRING,
       set: function(val) {
-        if (!val) {
-          this.setDataValue('');
+        if (val === '') {
+          this.setDataValue(null);
           return;
         }
         let salt = bcrypt.genSaltSync(10);

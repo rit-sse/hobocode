@@ -24,7 +24,7 @@ router.route('/robots/:botname?/')
   .post((req, res)=> {
     const botname = req.body.botname;
     const botcode = req.body.code;
-    const botpassword = req.body.password;
+    const botpassword = req.body.password || '';
     Robot.create({ name: botname, code: botcode, password: botpassword }).then(robot=> {
       //success
       res.status(201).send(robot.toJSON());
