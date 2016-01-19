@@ -31,7 +31,7 @@ export const FireDistance = 10;
 export const MaxEnergy = 100;
 
 // in ms
-export const RobotTimeout = 5000000000000;
+export const RobotTimeout = 500;
 
 // @type: "setup"
 export interface SetupMessage extends WireMessageBase {

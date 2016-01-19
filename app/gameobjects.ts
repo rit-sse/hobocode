@@ -40,7 +40,7 @@ export class RobotGameObject extends GameObject implements wire.RobotState {
     generateTickDataAndReset(board: GameState) {
         const ret: wire.TickData = {
             in_view: {
-                robots: board.entities.robots.filter(bot => this.inRange(bot, wire.ViewDistance)).map(bot => ({location: bot.location, name: bot.name})),
+                robots: board.entities.robots.filter(bot => bot.name !== this.name).filter(bot => this.inRange(bot, wire.ViewDistance)).map(bot => ({location: bot.location, name: bot.name})),
                 regens: board.entities.regens.filter(reg => this.inRange(reg, wire.ViewDistance)).map(reg => ({location: reg.location, value: reg.value})),
             },
             observations: this.observations,

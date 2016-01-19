@@ -30,6 +30,7 @@ window.onload = function() {
       if (gameStateFrames[currentFrame + 1] !== undefined) {
           currentFrame++;
           frameText.text = `Frame ${currentFrame}`;
+          renderFrame();
       }
       else {
           console.error('No more frames to render');
@@ -46,20 +47,15 @@ window.onload = function() {
 
     // define graphics object
     const graphics = new PIXI.Graphics();
+    stage.addChild(graphics);
 
-    // start animating
-    function animate() {
-        requestAnimationFrame(animate);
+    function renderFrame() {
+        console.log(gameStateFrames[currentFrame]);
+        graphics.clear();
 
         /* we should probably not be making these graphics objects
             in the animate loop, don't know how this can be revised,
             but it works for now */
-        graphics.beginFill(0xFF0000); // make shots red
-        gameStateFrames[currentFrame].shots_fired.map(shot => {
-            graphics.drawRect(shot.to.x * tileSize[0],
-                              shot.to.y * tileSize[1],
-                              tileSize[0], tileSize[1]);
-        });
         graphics.beginFill(0x0000FF); // make regens blue
         gameStateFrames[currentFrame].regens.map(regen => {
             graphics.drawRect(regen.location.x * tileSize[0],
@@ -72,11 +68,27 @@ window.onload = function() {
                               robot.location.y * tileSize[1],
                               tileSize[0], tileSize[1]);
         });
-        stage.addChild(graphics);
-
-        // render the container
-        renderer.render(stage);
+        graphics.beginFill(0xFF0000); // make shots red
+        gameStateFrames[currentFrame].shots_fired.map(shot => {
+            graphics.drawRect((shot.to.x * tileSize[0]) + (tileSize[0] / 2) - 2,
+                              (shot.to.y * tileSize[1]),
+                              4, tileSize[1]);
+            graphics.drawRect((shot.to.x * tileSize[0]),
+                              (shot.to.y * tileSize[1]) + (tileSize[1] / 2) - 2,
+                              tileSize[0], 4);
+        });
     }
+
+    // start animating
+    function animate() {
+        requestAnimationFrame(animate);
+
+        if (gameStateFrames) {
+            // render the container
+            renderer.render(stage);
+        }
+    }
+    animate();
 
     // TODO: Manage 
     const complexRandomBot = `
@@ -86,8 +98,8 @@ window.onload = function() {
             var opt = Math.random();
             if (opt > 0.7) {
                 // Add some variance to shots
-                var num = (opt * 10) % 3 - 1;
-                var num2 = (opt * 100) % 3 - 1;
+                var num = Math.floor((opt * 10) % 3) - 1;
+                var num2 = Math.floor((opt * 100) % 3) - 1;
                 _this.shoot(0, {x: bot.location.x + num, y: bot.location.y + num2});
             }
             else {
@@ -96,20 +108,26 @@ window.onload = function() {
         }
         function moveTowardClosestRegen() {
             // Move towards the regen
-            var x = this.location.x;
-            var y = this.location.y;
-            var location = _this.inView.regens.slice(0).sort(function(r) { return Math.sqrt(); })[0];
+            var x = _this.location.x;
+            var y = _this.location.y;
+            var location = _this.inView.regens
+              .map(function(r){return r.location;})
+              .sort(function(l) { return Math.sqrt(Math.pow(l.x - x, 2)+Math.pow(l.y - y, 2)); })[0];
             if (location.x < x) {
                 _this.move_west();
+                _this.location.x--;
             }
             else if (x < location.x) {
                 _this.move_east();
+                _this.location.x++;
             }
             else if (location.y < y) {
-                _this.move_south();
+                _this.move_north();
+                _this.location.y--;
             }
             else if (y < location.y) {
-                _this.move_north();
+                _this.move_south();
+                _this.location.y++;
             }
         }
         function moveRandomly() {
@@ -127,23 +145,24 @@ window.onload = function() {
                 _this.move_north();
             }
         }
-        for (var i=1; i<3; i++) {
-            if (this.inView.robots.length  && this.inView.regens.length){
+        for (var i=1; i<=3; i++) {
+            if (this.inView.robots.length && this.inView.regens.length){
                 var opt = Math.random();
-                if (opt > 0.6) {
+                if (opt < 0.2) {
                     shootAtRandomBot();
                 }
                 else {
                     moveTowardClosestRegen();
                 }
             }
-            else if (this.inView.robots.length) {
-                shootAtRandomBot();
-            }
             else if (this.inView.regens.length) {
                 moveTowardClosestRegen();
             }
+            else if (this.inView.robots.length) {
+                shootAtRandomBot();
+            }
             else {
+                debugger;
                 moveRandomly();
             }
         }
@@ -152,6 +171,6 @@ window.onload = function() {
     const game = new GameState(boardSize[0], boardSize[1], [{code: complexRandomBot}, {code: complexRandomBot}]);
     game.runMatch().then(frames => {
         gameStateFrames = frames;
-        animate();
+        renderFrame();
     });
 };

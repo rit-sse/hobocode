@@ -164,7 +164,7 @@ class Robot {
 
     finalize_moves() {
         if (!this.validate_moves()) {
-            throw new Error(`More moves scheduled than the robot has energy for! ${this.total_queued_cost()} energy use scheduled, but only ${this.energy} available for use! Use "this.reset_moves()" to reset the move queue.`);
+            console.warn(`More moves scheduled than the robot has energy for! ${this.total_queued_cost()} energy use scheduled, but only ${this.energy} available for use! Use "this.reset_moves()" to reset the move queue.`);
         }
         const message = {type: 'action', sequence: this.sequence, arguments: this.moves} as wire.ActionEnvelopeMessage;
 
