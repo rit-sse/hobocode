@@ -30,12 +30,13 @@ module.exports = function(sequelize, DataTypes) {
     password: {
       type: DataTypes.STRING,
       set: function(val) {
+        if (!val) {
+          this.setDataValue('');
+          return;
+        }
         let salt = bcrypt.genSaltSync(10);
         let hash = bcrypt.hashSync(val, salt);
         this.setDataValue('password', hash);
-        if (val === '') {
-          this.setDataValue('');
-        }
       }
     }
   }, {
