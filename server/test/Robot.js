@@ -8,6 +8,8 @@ chai.should()
 
 let Robot = require('../models').Robot;
 
+beforeEach(() => Robot.sync({force: true}));
+
 /**
  * Asserts that a response from `Instance#validate` is valid.  If it is, this
  * will return a resolved Promise.  Otherwise, it will return a rejected
