@@ -25,25 +25,47 @@ window.onload = function() {
     let gameStateFrames: GameFrame[];
     let currentFrame = 0;
 
-    // move game frames forward by clicking on the tiles
-    tiled.on('click', () => {
-      if (gameStateFrames[currentFrame + 1] !== undefined) {
-          currentFrame++;
-          frameText.text = `Frame ${currentFrame}`;
-          renderFrame();
-      }
-      else {
-          console.error('No more frames to render');
-          frameText.text = `Last Frame: ${currentFrame}`;
-      }
-    });
-    stage.addChild(tiled);
-
     // add text to show the current frame
     const frameText = new PIXI.Text(`Frame ${currentFrame}`);
     frameText.x = 0;
     frameText.y = tileSize[1] * boardSize[1];
     stage.addChild(frameText);
+
+    // Add text for showing robot health
+    const healthText = new PIXI.Text('');
+    healthText.x = 0;
+    healthText.y = frameText.y + 40;
+    stage.addChild(healthText);
+
+    //Add text for showing robot energy
+    const energyText = new PIXI.Text('');
+    energyText.x = 0;
+    energyText.y = healthText.y + 35;
+    stage.addChild(energyText);
+
+    function updateFrame(){
+        if (gameStateFrames[currentFrame + 1] !== undefined) {
+            currentFrame++;
+            frameText.text = `Frame ${currentFrame}`;
+            healthText.text = gameStateFrames[currentFrame].robots.map(robot => {
+                return `${robot.name} : ${robot.health}`;
+            }).join(' ; ');
+            energyText.text = gameStateFrames[currentFrame].robots.map(robot => {
+                return `${robot.name} : ${robot.energy}`;
+            }).join(' ; ');
+            renderFrame();
+        }
+        else {
+            console.error('No more frames to render');
+            frameText.text = `Last Frame: ${currentFrame}`;
+        } 
+    }
+
+    // move game frames forward by clicking on the tiles
+    tiled.on('click', () => {
+      updateFrame();
+    });
+    stage.addChild(tiled);
 
     // define graphics object
     const graphics = new PIXI.Graphics();
@@ -53,9 +75,6 @@ window.onload = function() {
         console.log(gameStateFrames[currentFrame]);
         graphics.clear();
 
-        /* we should probably not be making these graphics objects
-            in the animate loop, don't know how this can be revised,
-            but it works for now */
         graphics.beginFill(0x0000FF); // make regens blue
         gameStateFrames[currentFrame].regens.map(regen => {
             graphics.drawRect(regen.location.x * tileSize[0],
