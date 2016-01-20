@@ -8,7 +8,6 @@ router.route('/robots/:botname?/')
 
   /* get a robot from the database */
   .get((req, res, next)=>{
-    //console.log('res:', Object.keys(res.prototype));
     const botname = req.params.botname;
     if (botname) {
     Robot.findOne({ where: { url_name: botname } }).then((robot)=>{
