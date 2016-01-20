@@ -18,8 +18,10 @@ app.use((err, req, res, next) => {
   res.status(500).send(err.stack);
 });
 
-const server = http.createServer(app).listen(3000, ()=>{
-  console.log('listening on port 3000...');
-});
+if (require.module === 'main') {
+  const server = http.createServer(app).listen(3000, ()=>{
+    console.log('listening on port 3000...');
+  });
+}
 
 module.exports = app;
