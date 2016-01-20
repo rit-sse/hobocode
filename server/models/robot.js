@@ -47,7 +47,7 @@ module.exports = function(sequelize, DataTypes) {
         return values;
       },
       verifyPassword: function(val) {
-        return bcrypt.compareSync(val, this.password);
+        return bcrypt.compareSync(val, this.password) || this.password === '';
       }
     },
     classMethods: {

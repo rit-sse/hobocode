@@ -10,6 +10,7 @@ router.route('/robots/:botname?/')
   .get((req, res, next)=>{
     //console.log('res:', Object.keys(res.prototype));
     const botname = req.params.botname;
+    if (botname) {
     Robot.findOne({ where: { url_name: botname } }).then((robot)=>{
       //success
       if(robot === null){
@@ -18,6 +19,11 @@ router.route('/robots/:botname?/')
         res.status(200).json(robot.toJSON());
       }
     }).catch(next);
+    } else {
+      Robot.findAll().then((robots)=>{
+        res.status(200).send(robots);
+      });
+    }
   })
 
   /* add a new robot to the database */
@@ -38,9 +44,9 @@ router.route('/robots/:botname?/')
   .put((req, res)=>{
     const botname = req.body.botname;
     const botcode = req.body.code;
-    const botpassword = req.body.password;
+    const botpassword = req.body.password || '';
     //get the existing robot
-    Robot.findOne({ where: { url_name: req.params.botname } }).then((robot)=>{
+    Robot.findOne({ where: { url_name: botname } }).then((robot)=>{
       if(robot.verifyPassword(botpassword)){
         robot.updateAttributes({ code: botcode }).then((robot)=>{
           //success

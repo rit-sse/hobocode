@@ -9,9 +9,11 @@
 
 ###`GET /api/v1/robots/<robot url_name>`
 
-Get an existing robot
+Get an existing robot: with name for a specific robot, omit url_name to get all robots
 
 ####Response
+
+#####With url_name parameter
 
 #####200
 
@@ -24,6 +26,29 @@ Get an existing robot
   "createdAt": "2016-01-14T19:15:00.685Z",
   "updatedAt": "2016-01-14T19:15:00.685Z"
 }
+```
+
+#####Without url_name parameter
+
+```js
+[
+  {
+    "id": 1,
+    "name": "Jane Doe",
+    "url_name": "jane_doe",
+    "code": null,
+    "createdAt": "2016-01-19T16:40:55.458Z",
+    "updatedAt": "2016-01-19T16:40:55.458Z"
+  },
+  {
+    "id": 2,
+    "name": "My Robot",
+    "url_name": "my_robot",
+    "code": "this is my code",
+    "createdAt": "2016-01-19T16:41:04.607Z",
+    "updatedAt": "2016-01-19T16:41:04.607Z"
+  }
+]
 ```
 
 #####404
