@@ -9,7 +9,7 @@ module.exports = {
       Example:
       return queryInterface.createTable('users', { id: Sequelize.INTEGER });
     */
-    return queryInterface.changeColumn('Robots', 'url_name', { type: Sequelize.STRING });
+    return queryInterface.changeColumn('Robots', 'code', { type: Sequelize.TEXT });
   },
 
   down: function (queryInterface, Sequelize) {
@@ -20,6 +20,6 @@ module.exports = {
       Example:
       return queryInterface.dropTable('users');
     */
-    return queryInterface.removeIndex('Robots', 'url_name', { type: Sequelize.TEXT });
+    return queryInterface.changeColumn('Robots', 'code', { type: Sequelize.STRING });
   }
 };

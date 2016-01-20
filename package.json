@@ -45,10 +45,14 @@
     "path": "^0.12.7",
     "pixi.js": "^3.0.9",
     "sinon": "^1.17.2",
+    "supertest": "^1.1.0",
+    "supertest-as-promised": "^2.0.2",
     "tslint": "^3.2.1",
     "typescript": "^1.7.5"
   },
   "dependencies": {
+    "bcrypt": "^0.8.5",
+    "body-parser": "^1.14.2",
     "express": "^4.13.3",
     "sequelize": "^3.17.1",
     "sqlite3": "^3.1.1",

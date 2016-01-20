@@ -5,7 +5,9 @@
     "logging":false
   },
   "test": {
-    "dialect": "sqlite"
+    "dialect": "sqlite",
+    "logging":false,
+    "storage": "test.sqlite"
   },
   "production": {
     "username": "root",

@@ -9,7 +9,7 @@ module.exports = {
       Example:
       return queryInterface.createTable('users', { id: Sequelize.INTEGER });
     */
-    return queryInterface.changeColumn('Robots', 'url_name', { type: Sequelize.STRING });
+    return queryInterface.addIndex('Robots', ['url_name'], { indicesType: 'UNIQUE' });
   },
 
   down: function (queryInterface, Sequelize) {
@@ -20,6 +20,6 @@ module.exports = {
       Example:
       return queryInterface.dropTable('users');
     */
-    return queryInterface.removeIndex('Robots', 'url_name', { type: Sequelize.TEXT });
+    return queryInterface.removeIndex('Robots', ['url_name'], { indicesType: 'UNIQUE' });
   }
 };
