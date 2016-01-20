@@ -34,30 +34,24 @@ window.onload = function() {
     // Add text for showing robot health
     const healthText = new PIXI.Text('');
     healthText.x = 0;
-    healthText.y = frameText.y + 40;
+    healthText.y = frameText.y + 36;
     stage.addChild(healthText);
 
     //Add text for showing robot energy
     const energyText = new PIXI.Text('');
     energyText.x = 0;
-    energyText.y = healthText.y + 35;
+    energyText.y = healthText.y + 72;
     stage.addChild(energyText);
 
     function updateFrame(){
         if (gameStateFrames[currentFrame + 1] !== undefined) {
             currentFrame++;
-            frameText.text = `Frame ${currentFrame}`;
-            healthText.text = gameStateFrames[currentFrame].robots.map(robot => {
-                return `${robot.name} : ${robot.health}`;
-            }).join(' ; ');
-            energyText.text = gameStateFrames[currentFrame].robots.map(robot => {
-                return `${robot.name} : ${robot.energy}`;
-            }).join(' ; ');
             renderFrame();
         }
         else {
             console.error('No more frames to render');
             frameText.text = `Last Frame: ${currentFrame}`;
+
         } 
     }
 
@@ -96,6 +90,14 @@ window.onload = function() {
                               (shot.to.y * tileSize[1]) + (tileSize[1] / 2) - 2,
                               tileSize[0], 4);
         });
+
+        frameText.text = `Frame ${currentFrame}`;
+        healthText.text = 'Health: \n' + gameStateFrames[currentFrame].robots.map(robot => {
+            return `${robot.name} : ${robot.health}`;
+        }).join(' ; ');
+        energyText.text = 'Energy: \n' + gameStateFrames[currentFrame].robots.map(robot => {
+            return `${robot.name} : ${robot.energy}`;
+        }).join(' ; ');
     }
 
     // start animating
