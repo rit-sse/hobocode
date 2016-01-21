@@ -4,14 +4,19 @@
         "target": "es3",
         "noImplicitAny": true,
         "rootDir": ".",
-        "sourceMap": false
+        "sourceMap": false,
+        "jsx" : "react"
     },
     "files": [
         "typings/tsd.d.ts",
-        "main.ts",
         "gamestate.ts",
         "gameobjects.ts",
         "robotproxy.ts",
-        "wire.ts"
+        "wire.ts",
+        "app.tsx",
+        "gamelogic.ts",
+        "components/homepage.tsx",
+        "components/robotlist.tsx",
+        "components/robotitem.tsx"
     ]
 }
