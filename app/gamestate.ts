@@ -58,6 +58,7 @@ export class GameState {
 
             // create our robot with that location
             let robotId = (counter++).toString();
+
             this.entities.robots.push( new RobotGameObject(robotId, robot.code,
                 wire.Health, wire.Costs.income, robotLocation) );
         }
@@ -92,10 +93,19 @@ export class GameState {
             this.entities.robots.map(robot => robot.proxy.getTurn(this.getStateFor(robot)).then(response => response).catch(this.createBotErrorHandler(robot)))
         ).then(data => this.handleResponses(data));
     }
-
+    aliveCount() {
+        let aCount = 0;
+        this.entities.robots.forEach(robot => {
+            if(robot.alive == true) {
+                aCount++;
+            }
+        });
+        return aCount;
+    }
+    
     handleResponses(listOfActionMessages: wire.ActionMessage[][]): Promise<GameFrame[]> {
         this.simulateTurn(listOfActionMessages);
-        if (this.entities.robots.length <= 1) {
+        if (this.aliveCount() <= 1) {
             // GAME OVER, return game frames/declare winner
             return Promise.resolve(this.frames);
         } else {
@@ -104,11 +114,11 @@ export class GameState {
     }
 
     removeDeadBots() {
-        this.entities.robots = this.entities.robots.filter(bot => {
+        this.entities.robots.forEach(bot => {
             if (bot.health <= 0) {
                 bot.proxy.destroy();
+                bot.alive = false;
             }
-            return bot.health > 0;
         });
     }
 

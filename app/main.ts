@@ -1,24 +1,33 @@
 import * as PIXI from 'pixi.js';
 import RobotProxy from './robotproxy';
 import {GameState, GameFrame} from './gamestate';
+import { RobotGameObject, RegenGameObject } from './gameobjects';
 import * as wire from './wire';
 
 window.onload = function() {
-    // grab the window size for the canvas
-    const winWidth = window.innerWidth;
-    const winHeight = window.innerHeight;
-
+    
     // define the size of the grid tiles, and how many spaces we want
     const tileSize = [32, 32];
     const boardSize = [8, 8];
 
-    const renderer = PIXI.autoDetectRenderer(winWidth, winHeight, {backgroundColor : 0x1099bb, view : document.getElementById('maincanvas') as HTMLCanvasElement});
+    // grab the window size for the canvas
+    const winWidth = innerWidth;
+    const winHeight = innerHeight;
+
+    const renderer = PIXI.autoDetectRenderer(winWidth, winHeight, {backgroundColor : 0xFFFFFF, view : document.getElementById('maincanvas') as HTMLCanvasElement});
     document.body.appendChild(renderer.view);
 
     // create the root of the scene graph
     const stage = new PIXI.Container();
 
+    //Load Base Textures
     const gridTexture = PIXI.Texture.fromImage('square.png');
+    const robotTexture = PIXI.Texture.fromImage('robot.png');
+    const shotTexture = PIXI.Texture.fromImage('shot.png');
+    
+    let robotSprites: {[id: string]: PIXI.Sprite} = {};
+    let shotsFired : PIXI.Sprite[] = [];
+    
     const tiled = new PIXI.extras.TilingSprite(gridTexture, tileSize[0]*boardSize[0], tileSize[1]*boardSize[1]);
     tiled.interactive = true;
 
@@ -64,10 +73,23 @@ window.onload = function() {
     // define graphics object
     const graphics = new PIXI.Graphics();
     stage.addChild(graphics);
+       
+    function generateRobotSprites(robots: RobotGameObject[]) {
+        robots.map(robot => {
+            const sprite = new PIXI.Sprite(robotTexture);
+            stage.addChild(sprite);
+            robotSprites[robot.name] = sprite; 
+        });
+    }
 
     function renderFrame() {
         console.log(gameStateFrames[currentFrame]);
         graphics.clear();
+        //Clear Shots Sprites
+        shotsFired = shotsFired.filter(shot => {
+           stage.removeChild(shot);
+           return false; 
+        });
 
         graphics.beginFill(0x0000FF); // make regens blue
         gameStateFrames[currentFrame].regens.map(regen => {
@@ -75,20 +97,25 @@ window.onload = function() {
                               regen.location.y * tileSize[1],
                               tileSize[0], tileSize[1]);
         });
-        graphics.beginFill(0x00FF00); // make robots green
+        
+        //Robots
         gameStateFrames[currentFrame].robots.map(robot => {
-            graphics.drawRect(robot.location.x * tileSize[0],
-                              robot.location.y * tileSize[1],
-                              tileSize[0], tileSize[1]);
+            if(robot.health >= 0) {
+                robotSprites[robot.name].position.x = robot.location.x * tileSize[0];
+                robotSprites[robot.name].position.y = robot.location.y * tileSize[1];
+            } else {
+                stage.removeChild(robotSprites[robot.name]);
+            }
         });
-        graphics.beginFill(0xFF0000); // make shots red
+        
+        //Shots
         gameStateFrames[currentFrame].shots_fired.map(shot => {
-            graphics.drawRect((shot.to.x * tileSize[0]) + (tileSize[0] / 2) - 2,
-                              (shot.to.y * tileSize[1]),
-                              4, tileSize[1]);
-            graphics.drawRect((shot.to.x * tileSize[0]),
-                              (shot.to.y * tileSize[1]) + (tileSize[1] / 2) - 2,
-                              tileSize[0], 4);
+            let shotsSprite = new PIXI.Sprite(shotTexture);
+            stage.addChild(shotsSprite);
+     
+            shotsSprite.position.x = (shot.to.x * tileSize[0]);
+            shotsSprite.position.y = (shot.to.y * tileSize[1]);
+            shotsFired.push(shotsSprite);
         });
 
         frameText.text = `Frame ${currentFrame}`;
@@ -190,6 +217,8 @@ window.onload = function() {
         this.finalize_moves();
     `;
     const game = new GameState(boardSize[0], boardSize[1], [{code: complexRandomBot}, {code: complexRandomBot}]);
+    generateRobotSprites(game.entities.robots);
+    
     game.runMatch().then(frames => {
         gameStateFrames = frames;
         renderFrame();
