@@ -26,6 +26,16 @@ window.onload = function() {
     const shotTexture = PIXI.Texture.fromImage('shot.png');
     const energyTexture = PIXI.Texture.fromImage('energy.png');
     
+    let range10 = [0,1,2,3,4,5,6,7,8,9,10];
+    let healthTextures : PIXI.Texture[] = [];
+    let energyTextures : PIXI.Texture[] = [];
+    range10.forEach(num => {
+        let ht = PIXI.Texture.fromImage(`health${num}.png`);
+        let et = PIXI.Texture.fromImage(`energy${num}.png`);
+        healthTextures.push(ht);
+        energyTextures.push(et);
+    });
+
     let robotSprites: {[id: string]: PIXI.Sprite} = {};
     let shotsFired : PIXI.Sprite[] = [];
     let fieldEnergy : PIXI.Sprite[] = [];
@@ -41,18 +51,6 @@ window.onload = function() {
     frameText.x = 0;
     frameText.y = tileSize[1] * boardSize[1];
     stage.addChild(frameText);
-
-    // Add text for showing robot health
-    const healthText = new PIXI.Text('');
-    healthText.x = 0;
-    healthText.y = frameText.y + 36;
-    stage.addChild(healthText);
-
-    //Add text for showing robot energy
-    const energyText = new PIXI.Text('');
-    energyText.x = 0;
-    energyText.y = healthText.y + 72;
-    stage.addChild(energyText);
 
     function updateFrame(){
         if (gameStateFrames[currentFrame + 1] !== undefined) {
@@ -85,8 +83,18 @@ window.onload = function() {
     }
 
     function renderFrame() {
-        console.log(gameStateFrames[currentFrame]);
         graphics.clear();
+        
+        stage.children.forEach(child => {
+            if(child.name === "health" ) {
+                child.visible = false;
+                stage.removeChild(child);
+            }
+            if(child.name === "energy") {
+                child.visible = false;
+                stage.removeChild(child);
+            }
+        });
         
         //Clear Shots Sprites
         shotsFired = shotsFired.filter(shot => {
@@ -112,6 +120,24 @@ window.onload = function() {
             if(robot.health > 0) {
                 robotSprites[robot.name].position.x = robot.location.x * tileSize[0];
                 robotSprites[robot.name].position.y = robot.location.y * tileSize[1];
+                let hTexture = healthTextures[Math.round(robot.health/2)];
+                let healthSprite = new PIXI.Sprite(hTexture);
+                
+                healthSprite.position.x = robot.location.x * tileSize[0];
+                healthSprite.position.y = robot.location.y * tileSize[1];
+                healthSprite.name = "health";
+                stage.addChild(healthSprite);
+                
+                let e = 0;
+                robot.energy > 20 ? e = 20 : e = robot.energy;
+                let eTexture = energyTextures[Math.round(e/3)];
+                let energySprite = new PIXI.Sprite(eTexture);
+
+                energySprite.position.x = robot.location.x * tileSize[0];
+                energySprite.position.y = robot.location.y * tileSize[1];
+                energySprite.name = "energy";
+                stage.addChild(energySprite);
+                
             } else {
                 stage.removeChild(robotSprites[robot.name]);
             }
@@ -128,12 +154,6 @@ window.onload = function() {
         });
 
         frameText.text = `Frame ${currentFrame}`;
-        healthText.text = 'Health: \n' + gameStateFrames[currentFrame].robots.map(robot => {
-            return `${robot.name} : ${robot.health}`;
-        }).join(' ; ');
-        energyText.text = 'Energy: \n' + gameStateFrames[currentFrame].robots.map(robot => {
-            return `${robot.name} : ${robot.energy}`;
-        }).join(' ; ');
     }
 
     // start animating
