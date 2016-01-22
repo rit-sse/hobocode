@@ -24,9 +24,11 @@ window.onload = function() {
     const gridTexture = PIXI.Texture.fromImage('square.png');
     const robotTexture = PIXI.Texture.fromImage('robot.png');
     const shotTexture = PIXI.Texture.fromImage('shot.png');
+    const energyTexture = PIXI.Texture.fromImage('energy.png');
     
     let robotSprites: {[id: string]: PIXI.Sprite} = {};
     let shotsFired : PIXI.Sprite[] = [];
+    let fieldEnergy : PIXI.Sprite[] = [];
     
     const tiled = new PIXI.extras.TilingSprite(gridTexture, tileSize[0]*boardSize[0], tileSize[1]*boardSize[1]);
     tiled.interactive = true;
@@ -85,22 +87,29 @@ window.onload = function() {
     function renderFrame() {
         console.log(gameStateFrames[currentFrame]);
         graphics.clear();
+        
         //Clear Shots Sprites
         shotsFired = shotsFired.filter(shot => {
            stage.removeChild(shot);
            return false; 
         });
 
-        graphics.beginFill(0x0000FF); // make regens blue
+        fieldEnergy = fieldEnergy.filter(energy => {
+            stage.removeChild(energy);
+            return false;
+        });
+
         gameStateFrames[currentFrame].regens.map(regen => {
-            graphics.drawRect(regen.location.x * tileSize[0],
-                              regen.location.y * tileSize[1],
-                              tileSize[0], tileSize[1]);
+            let energySprite = new PIXI.Sprite(energyTexture);
+            stage.addChild(energySprite);
+            energySprite.position.x = (regen.location.x * tileSize[0]);
+            energySprite.position.y = (regen.location.y * tileSize[1]);
+            fieldEnergy.push(energySprite);
         });
         
         //Robots
         gameStateFrames[currentFrame].robots.map(robot => {
-            if(robot.health >= 0) {
+            if(robot.health > 0) {
                 robotSprites[robot.name].position.x = robot.location.x * tileSize[0];
                 robotSprites[robot.name].position.y = robot.location.y * tileSize[1];
             } else {
